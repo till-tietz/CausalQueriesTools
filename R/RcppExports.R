@@ -43,6 +43,35 @@ get_type_prob_multiple_cstd <- function(params, P, nrow, ncol, nrow_p, ncol_p) {
     .Call(`_CQBigModel_get_type_prob_multiple_cstd`, params, P, nrow, ncol, nrow_p, ncol_p)
 }
 
+#' cpp implementation of standard R rep
+#'
+#' @param x integer vector to be repeated
+#' @param n integer number of repetitions
+#' @return integer vector x repeated n times
+#' @keywords internal
+rep_times <- function(x, n) {
+    .Call(`_CQBigModel_rep_times`, x, n)
+}
+
+#' cpp implementation of R rep with each argument
+#'
+#' @param x char vector of elements to be repeated
+#' @param n integer number of repetitions
+#' @return char vector with each element in x repeated n times in order
+#' @keywords internal
+rep_each <- function(x, n) {
+    .Call(`_CQBigModel_rep_each`, x, n)
+}
+
+#' cpp helper to make causal types
+#'
+#' @param nodal_types a List of nodal types
+#' @return vector of vectors containing causal types
+#' @keywords internal
+make_causal_types_c <- function(nodal_types) {
+    .Call(`_CQBigModel_make_causal_types_c`, nodal_types)
+}
+
 #' generates realized outcomes for all causal types by sequentially calculating endogenous nodes.
 #'
 #' @param d a data.frame of causal types passed from within realise_outcomes
