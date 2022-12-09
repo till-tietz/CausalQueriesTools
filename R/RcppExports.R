@@ -72,8 +72,39 @@ make_causal_types_c <- function(nodal_types) {
     .Call(`_CQBigModel_make_causal_types_c`, nodal_types)
 }
 
+#' cpp implementation of realise_outcomes. Realise outcomes for all causal types.
+#' Calculated by sequentially calculating endogenous nodes. If a do operator is applied to
+#' any node then it takes the given value and all its descendants are generated accordingly.
+#' Output is written to a bigmatrix.
+#'
+#' @param outcomes memory address of a bigmatrix object
+#' @param nodes string vector of nodes names
+#' @param endogenous_nodes string vector of endogenous nodes
+#' @param dos List of do operations
+#' @param parents_list List of parent nodes for each node
+#' @param nodal_types List of integer matrices with uncollapsed nodal types
+#' @param nodal_types_colnames List of column names of matrices in nodal_types
+#' @param nodal_types_collapsed List of collapsed nodal types
+#' @param n_causal_types int specifying number of causal types
 realise_outcomes_c <- function(outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types) {
     invisible(.Call(`_CQBigModel_realise_outcomes_c`, outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types))
+}
+
+#' cpp implementation of realise_outcomes for map_query_to_causal_types. Dos are evaluated
+#' and the realised outcomes for the variable they are attached to is written to a bigmatrix.
+#'
+#' @param outcomes memory address of a bigmatrix object
+#' @param nodes string vector of nodes names
+#' @param endogenous_nodes string vector of endogenous nodes
+#' @param dos List of do operations
+#' @param parents_list List of parent nodes for each node
+#' @param nodal_types List of integer matrices with uncollapsed nodal types
+#' @param nodal_types_colnames List of column names of matrices in nodal_types
+#' @param nodal_types_collapsed List of collapsed nodal types
+#' @param n_causal_types int specifying number of causal types
+#' @param vars string vector with names of variables dos are attached to
+realise_outcomes_singular_c <- function(outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars) {
+    invisible(.Call(`_CQBigModel_realise_outcomes_singular_c`, outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars))
 }
 
 #' generates realized outcomes for all causal types by sequentially calculating endogenous nodes.

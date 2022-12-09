@@ -77,6 +77,21 @@ std::vector<std::vector<std::string>> make_causal_types_c(List nodal_types){
   return causal_types;
 }
 
+
+//' cpp implementation of realise_outcomes. Realise outcomes for all causal types.
+//' Calculated by sequentially calculating endogenous nodes. If a do operator is applied to
+//' any node then it takes the given value and all its descendants are generated accordingly.
+//' Output is written to a bigmatrix.
+//'
+//' @param outcomes memory address of a bigmatrix object
+//' @param nodes string vector of nodes names
+//' @param endogenous_nodes string vector of endogenous nodes
+//' @param dos List of do operations
+//' @param parents_list List of parent nodes for each node
+//' @param nodal_types List of integer matrices with uncollapsed nodal types
+//' @param nodal_types_colnames List of column names of matrices in nodal_types
+//' @param nodal_types_collapsed List of collapsed nodal types
+//' @param n_causal_types int specifying number of causal types
 // [[Rcpp::export]]
 void realise_outcomes_c(SEXP outcomes,
                         std::vector<std::string> nodes,
@@ -150,7 +165,20 @@ void realise_outcomes_c(SEXP outcomes,
 }
 
 
-//[[Rcpp::export]]
+//' cpp implementation of realise_outcomes for map_query_to_causal_types. Dos are evaluated
+//' and the realised outcomes for the variable they are attached to is written to a bigmatrix.
+//'
+//' @param outcomes memory address of a bigmatrix object
+//' @param nodes string vector of nodes names
+//' @param endogenous_nodes string vector of endogenous nodes
+//' @param dos List of do operations
+//' @param parents_list List of parent nodes for each node
+//' @param nodal_types List of integer matrices with uncollapsed nodal types
+//' @param nodal_types_colnames List of column names of matrices in nodal_types
+//' @param nodal_types_collapsed List of collapsed nodal types
+//' @param n_causal_types int specifying number of causal types
+//' @param vars string vector with names of variables dos are attached to
+// [[Rcpp::export]]
 void realise_outcomes_singular_c(SEXP outcomes,
                                  std::vector<std::string> nodes,
                                  std::vector<std::string> endogenous_nodes,
@@ -161,7 +189,6 @@ void realise_outcomes_singular_c(SEXP outcomes,
                                  List nodal_types_collapsed,
                                  int n_causal_types,
                                  std::vector<std::string> vars){
-
 
  //connect to bigmat
  Rcpp::XPtr<BigMatrix> outcomes_mat(outcomes);
@@ -174,7 +201,7 @@ void realise_outcomes_singular_c(SEXP outcomes,
    std::vector<std::vector<std::string>> ct = make_causal_types_c(nodal_types_collapsed);
    std::string in_dos_i = in_dos[i];
    int pos = std::find(nodes.begin(), nodes.end(), in_dos_i) - nodes.begin();
-   int dos_i_int = dos[in_dos_i];
+   int dos_i_int = dos[i];
    std::vector<std::string> dos_i;
    dos_i.push_back(std::to_string(dos_i_int));
    ct[pos] = rep_times(dos_i, n_causal_types);
