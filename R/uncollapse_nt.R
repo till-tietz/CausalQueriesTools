@@ -15,16 +15,20 @@ uncollapse_nt <- function(nodal_types) {
 
   # This is not elegant; to handle cases where a single nodal type exists
   # otherwise it gets wrongly tranposed
-  for(j in 1:length(x)) if(length(nodal_types[[j]])==1)  x[[j]] <- t(x[[j]])
+  for(j in 1:length(x)){
+    if(length(nodal_types[[j]])==1){
+      x[[j]] <- t(x[[j]])
+    }
+  }
 
   for(j in 1:length(x)){
     # Add row names
     rownames(x[[j]]) <- apply(x[[j]], 1, paste, collapse ="")
     # Add col names
-    colnames(x[[j]]) <- CausalQueries:::perm(rep(1, log(ncol(x[[j]]),2))) %>%
+    colnames(x[[j]]) <- CausalQueries:::perm(rep(1, log(ncol(x[[j]]),2))) |>
       apply(1, paste, collapse = "")
   }
 
-  x
+  return(x)
 }
 
