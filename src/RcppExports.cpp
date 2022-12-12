@@ -65,41 +65,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rep_times
-std::vector<std::string> rep_times(std::vector<std::string> x, int n);
-RcppExport SEXP _CQBigModel_rep_times(SEXP xSEXP, SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(rep_times(x, n));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rep_each
-std::vector<std::string> rep_each(std::vector<std::string> x, int n);
-RcppExport SEXP _CQBigModel_rep_each(SEXP xSEXP, SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(rep_each(x, n));
-    return rcpp_result_gen;
-END_RCPP
-}
-// make_causal_types_c
-std::vector<std::vector<std::string>> make_causal_types_c(List nodal_types);
-RcppExport SEXP _CQBigModel_make_causal_types_c(SEXP nodal_typesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< List >::type nodal_types(nodal_typesSEXP);
-    rcpp_result_gen = Rcpp::wrap(make_causal_types_c(nodal_types));
-    return rcpp_result_gen;
-END_RCPP
-}
 // realise_outcomes_c
 void realise_outcomes_c(SEXP outcomes, std::vector<std::string> nodes, std::vector<std::string> endogenous_nodes, List dos, List parents_list, List nodal_types, List nodal_types_colnames, List nodal_types_collapsed, int n_causal_types);
 RcppExport SEXP _CQBigModel_realise_outcomes_c(SEXP outcomesSEXP, SEXP nodesSEXP, SEXP endogenous_nodesSEXP, SEXP dosSEXP, SEXP parents_listSEXP, SEXP nodal_typesSEXP, SEXP nodal_types_colnamesSEXP, SEXP nodal_types_collapsedSEXP, SEXP n_causal_typesSEXP) {
@@ -118,9 +83,9 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// realise_outcomes_singular_c
-std::vector<std::vector<int>> realise_outcomes_singular_c(std::vector<std::string> nodes, std::vector<std::string> endogenous_nodes, List dos, List parents_list, List nodal_types, List nodal_types_colnames, List nodal_types_collapsed, int n_causal_types, std::vector<std::string> vars);
-RcppExport SEXP _CQBigModel_realise_outcomes_singular_c(SEXP nodesSEXP, SEXP endogenous_nodesSEXP, SEXP dosSEXP, SEXP parents_listSEXP, SEXP nodal_typesSEXP, SEXP nodal_types_colnamesSEXP, SEXP nodal_types_collapsedSEXP, SEXP n_causal_typesSEXP, SEXP varsSEXP) {
+// query_to_ct_c
+std::vector<std::vector<int>> query_to_ct_c(std::vector<std::string> nodes, std::vector<std::string> endogenous_nodes, List dos, List parents_list, List nodal_types, List nodal_types_colnames, List nodal_types_collapsed, int n_causal_types, std::vector<std::string> vars);
+RcppExport SEXP _CQBigModel_query_to_ct_c(SEXP nodesSEXP, SEXP endogenous_nodesSEXP, SEXP dosSEXP, SEXP parents_listSEXP, SEXP nodal_typesSEXP, SEXP nodal_types_colnamesSEXP, SEXP nodal_types_collapsedSEXP, SEXP n_causal_typesSEXP, SEXP varsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -133,7 +98,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List >::type nodal_types_collapsed(nodal_types_collapsedSEXP);
     Rcpp::traits::input_parameter< int >::type n_causal_types(n_causal_typesSEXP);
     Rcpp::traits::input_parameter< std::vector<std::string> >::type vars(varsSEXP);
-    rcpp_result_gen = Rcpp::wrap(realise_outcomes_singular_c(nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars));
+    rcpp_result_gen = Rcpp::wrap(query_to_ct_c(nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -158,11 +123,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_CQBigModel_get_type_prob_multiple_c", (DL_FUNC) &_CQBigModel_get_type_prob_multiple_c, 2},
     {"_CQBigModel_get_type_prob_cstd", (DL_FUNC) &_CQBigModel_get_type_prob_cstd, 4},
     {"_CQBigModel_get_type_prob_multiple_cstd", (DL_FUNC) &_CQBigModel_get_type_prob_multiple_cstd, 6},
-    {"_CQBigModel_rep_times", (DL_FUNC) &_CQBigModel_rep_times, 2},
-    {"_CQBigModel_rep_each", (DL_FUNC) &_CQBigModel_rep_each, 2},
-    {"_CQBigModel_make_causal_types_c", (DL_FUNC) &_CQBigModel_make_causal_types_c, 1},
     {"_CQBigModel_realise_outcomes_c", (DL_FUNC) &_CQBigModel_realise_outcomes_c, 9},
-    {"_CQBigModel_realise_outcomes_singular_c", (DL_FUNC) &_CQBigModel_realise_outcomes_singular_c, 9},
+    {"_CQBigModel_query_to_ct_c", (DL_FUNC) &_CQBigModel_query_to_ct_c, 9},
     {"_CQBigModel_realise_outcome_c_old", (DL_FUNC) &_CQBigModel_realise_outcome_c_old, 5},
     {NULL, NULL, 0}
 };

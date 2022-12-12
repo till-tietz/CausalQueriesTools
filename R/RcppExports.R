@@ -43,35 +43,6 @@ get_type_prob_multiple_cstd <- function(params, P, nrow, ncol, nrow_p, ncol_p) {
     .Call(`_CQBigModel_get_type_prob_multiple_cstd`, params, P, nrow, ncol, nrow_p, ncol_p)
 }
 
-#' cpp implementation of standard R rep
-#'
-#' @param x integer vector to be repeated
-#' @param n integer number of repetitions
-#' @return integer vector x repeated n times
-#' @keywords internal
-rep_times <- function(x, n) {
-    .Call(`_CQBigModel_rep_times`, x, n)
-}
-
-#' cpp implementation of R rep with each argument
-#'
-#' @param x char vector of elements to be repeated
-#' @param n integer number of repetitions
-#' @return char vector with each element in x repeated n times in order
-#' @keywords internal
-rep_each <- function(x, n) {
-    .Call(`_CQBigModel_rep_each`, x, n)
-}
-
-#' cpp helper to make causal types
-#'
-#' @param nodal_types a List of nodal types
-#' @return vector of vectors containing causal types
-#' @keywords internal
-make_causal_types_c <- function(nodal_types) {
-    .Call(`_CQBigModel_make_causal_types_c`, nodal_types)
-}
-
 #' cpp implementation of realise_outcomes. Realise outcomes for all causal types.
 #' Calculated by sequentially calculating endogenous nodes. If a do operator is applied to
 #' any node then it takes the given value and all its descendants are generated accordingly.
@@ -102,8 +73,8 @@ realise_outcomes_c <- function(outcomes, nodes, endogenous_nodes, dos, parents_l
 #' @param nodal_types_collapsed List of collapsed nodal types
 #' @param n_causal_types int specifying number of causal types
 #' @param vars string vector with names of variables dos are attached to
-realise_outcomes_singular_c <- function(nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars) {
-    .Call(`_CQBigModel_realise_outcomes_singular_c`, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars)
+query_to_ct_c <- function(nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars) {
+    .Call(`_CQBigModel_query_to_ct_c`, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars)
 }
 
 #' generates realized outcomes for all causal types by sequentially calculating endogenous nodes.

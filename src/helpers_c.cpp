@@ -4,13 +4,12 @@
 #include <numeric>
 using namespace Rcpp;
 
-//' cpp implementation of standard R rep
-//'
-//' @param x integer vector to be repeated
-//' @param n integer number of repetitions
-//' @return integer vector x repeated n times
-//' @keywords internal
-// [[Rcpp::export]]
+
+//***************************
+//* generating causal types *
+//***************************
+
+// cpp implementation of standard R rep
 std::vector<std::string> rep_times(std::vector<std::string> x, int n){
 
   std::vector<std::string> ret;
@@ -22,13 +21,7 @@ std::vector<std::string> rep_times(std::vector<std::string> x, int n){
   return ret;
 }
 
-//' cpp implementation of R rep with each argument
-//'
-//' @param x char vector of elements to be repeated
-//' @param n integer number of repetitions
-//' @return char vector with each element in x repeated n times in order
-//' @keywords internal
-// [[Rcpp::export]]
+// cpp implementation of R rep with each argument
 std::vector<std::string> rep_each(std::vector<std::string> x, int n){
 
   std::vector<std::string> ret(x.size() * n);
@@ -44,12 +37,7 @@ std::vector<std::string> rep_each(std::vector<std::string> x, int n){
   return ret;
 }
 
-//' cpp helper to make causal types
-//'
-//' @param nodal_types a List of nodal types
-//' @return vector of vectors containing causal types
-//' @keywords internal
-// [[Rcpp::export]]
+// cpp helper to make causal types
 std::vector<std::vector<std::string>> make_causal_types_c(List nodal_types){
 
   //number of nodal types per node
@@ -76,6 +64,100 @@ std::vector<std::vector<std::string>> make_causal_types_c(List nodal_types){
 
   return causal_types;
 }
+
+//********************
+//* realise outcomes *
+//********************
+
+//' cpp implementation of realise_outcomes. Realise outcomes for all causal types.
+//' Calculated by sequentially calculating endogenous nodes. If a do operator is applied to
+//' any node then it takes the given value and all its descendants are generated accordingly.
+//' Output is written to a bigmatrix.
+//'
+//' @param outcomes memory address of a bigmatrix object
+//' @param nodes string vector of nodes names
+//' @param endogenous_nodes string vector of endogenous nodes
+//' @param dos List of do operations
+//' @param parents_list List of parent nodes for each node
+//' @param nodal_types List of integer matrices with uncollapsed nodal types
+//' @param nodal_types_colnames List of column names of matrices in nodal_types
+//' @param nodal_types_collapsed List of collapsed nodal types
+//' @param n_causal_types int specifying number of causal types
+// [[Rcpp::export]]
+void realise_outcomes_c(SEXP outcomes,
+                        std::vector<std::string> nodes,
+                        std::vector<std::string> endogenous_nodes,
+                        List dos,
+                        List parents_list,
+                        List nodal_types,
+                        List nodal_types_colnames,
+                        List nodal_types_collapsed,
+                        int n_causal_types){
+
+  //connect to bigmat
+  Rcpp::XPtr<BigMatrix> outcomes_mat(outcomes);
+  MatrixAccessor<int> outcomes_mat_access(*outcomes_mat);
+
+  // get causal types
+  std::vector<std::vector<std::string>> ct = make_causal_types_c(nodal_types_collapsed);
+  // fill in values for dos
+  std::vector<std::string> in_dos = dos.names();
+  for(int i = 0; i < in_dos.size(); ++i){
+    std::string in_dos_i = in_dos[i];
+    int pos = std::find(nodes.begin(), nodes.end(), in_dos_i) - nodes.begin();
+    int dos_i_int = dos[in_dos_i];
+    std::vector<std::string> dos_i;
+    dos_i.push_back(std::to_string(dos_i_int));
+    ct[pos] = rep_times(dos_i, n_causal_types);
+  }
+
+  // loop over each endogenous node
+  for(int i = 0; i < endogenous_nodes.size(); ++i){
+    std::string var = endogenous_nodes[i];
+    int pos = std::find(nodes.begin(), nodes.end(), var) - nodes.begin();
+    //get causal type realizations for endogenous node
+    std::vector<std::string> child_type = ct[pos];
+    //get parents of endogenous node
+    std::vector<std::string> parents = parents_list[var];
+    //get nodal types of endogenous node
+    std::vector<std::string> nodal_label = nodal_types_collapsed[var];
+    //get uncollapsed nodal types for endogenous node
+    arma::mat nodal_type_var = nodal_types[var];
+    //get uncollapsed nodal types colnames
+    std::vector<std::string> nodal_type_var_col = nodal_types_colnames[var];
+
+    //loop over causal types
+    for(int j = 0; j < child_type.size(); ++j){
+      //get causal type
+      std::string type = child_type[j];
+      //generate empty vector for parent realization
+      std::string parents_val;
+      //get parent realization
+      for(int k = 0; k < parents.size(); ++k){
+        int pos_parent = std::find(nodes.begin(), nodes.end(), parents[k]) - nodes.begin();
+        parents_val.append(ct[pos_parent][j]);
+      }
+      //find row position of type
+      int row = std::find(nodal_label.begin(),nodal_label.end(), type) - nodal_label.begin();
+      //find realization and add to J
+      int pos_col = std::find(nodal_type_var_col.begin(), nodal_type_var_col.end(), parents_val) - nodal_type_var_col.begin();
+      int outcome = int(nodal_type_var(row,pos_col));
+      ct[pos][j] = std::to_string(outcome);
+    }
+  }
+
+  for(int i = 0; i < ct.size(); ++i){
+    for(int j = 0; j < n_causal_types; ++j){
+      outcomes_mat_access[i][j] = std::stoi(ct[i][j]);
+    }
+  }
+
+  return;
+}
+
+//*******************************
+//* map queries to causal types *
+//*******************************
 
 // helper: element wise vector addition
 std::vector<int> add(std::vector<int> x,
@@ -295,95 +377,6 @@ std::vector<int> pair_operation(std::vector<int> a,
 }
 
 
-
-//' cpp implementation of realise_outcomes. Realise outcomes for all causal types.
-//' Calculated by sequentially calculating endogenous nodes. If a do operator is applied to
-//' any node then it takes the given value and all its descendants are generated accordingly.
-//' Output is written to a bigmatrix.
-//'
-//' @param outcomes memory address of a bigmatrix object
-//' @param nodes string vector of nodes names
-//' @param endogenous_nodes string vector of endogenous nodes
-//' @param dos List of do operations
-//' @param parents_list List of parent nodes for each node
-//' @param nodal_types List of integer matrices with uncollapsed nodal types
-//' @param nodal_types_colnames List of column names of matrices in nodal_types
-//' @param nodal_types_collapsed List of collapsed nodal types
-//' @param n_causal_types int specifying number of causal types
-// [[Rcpp::export]]
-void realise_outcomes_c(SEXP outcomes,
-                        std::vector<std::string> nodes,
-                        std::vector<std::string> endogenous_nodes,
-                        List dos,
-                        List parents_list,
-                        List nodal_types,
-                        List nodal_types_colnames,
-                        List nodal_types_collapsed,
-                        int n_causal_types){
-
-  //connect to bigmat
-  Rcpp::XPtr<BigMatrix> outcomes_mat(outcomes);
-  MatrixAccessor<int> outcomes_mat_access(*outcomes_mat);
-
-  // get causal types
-  std::vector<std::vector<std::string>> ct = make_causal_types_c(nodal_types_collapsed);
-  // fill in values for dos
-  std::vector<std::string> in_dos = dos.names();
-  for(int i = 0; i < in_dos.size(); ++i){
-    std::string in_dos_i = in_dos[i];
-    int pos = std::find(nodes.begin(), nodes.end(), in_dos_i) - nodes.begin();
-    int dos_i_int = dos[in_dos_i];
-    std::vector<std::string> dos_i;
-    dos_i.push_back(std::to_string(dos_i_int));
-    ct[pos] = rep_times(dos_i, n_causal_types);
-  }
-
-  // loop over each endogenous node
-  for(int i = 0; i < endogenous_nodes.size(); ++i){
-    std::string var = endogenous_nodes[i];
-    int pos = std::find(nodes.begin(), nodes.end(), var) - nodes.begin();
-    //get causal type realizations for endogenous node
-    std::vector<std::string> child_type = ct[pos];
-    //get parents of endogenous node
-    std::vector<std::string> parents = parents_list[var];
-    //get nodal types of endogenous node
-    std::vector<std::string> nodal_label = nodal_types_collapsed[var];
-    //get uncollapsed nodal types for endogenous node
-    arma::mat nodal_type_var = nodal_types[var];
-    //get uncollapsed nodal types colnames
-    std::vector<std::string> nodal_type_var_col = nodal_types_colnames[var];
-
-    //loop over causal types
-    for(int j = 0; j < child_type.size(); ++j){
-      //get causal type
-      std::string type = child_type[j];
-      //generate empty vector for parent realization
-      std::string parents_val;
-      //get parent realization
-      for(int k = 0; k < parents.size(); ++k){
-        int pos_parent = std::find(nodes.begin(), nodes.end(), parents[k]) - nodes.begin();
-        parents_val.append(ct[pos_parent][j]);
-      }
-      //find row position of type
-      int row = std::find(nodal_label.begin(),nodal_label.end(), type) - nodal_label.begin();
-      //find realization and add to J
-      int pos_col = std::find(nodal_type_var_col.begin(), nodal_type_var_col.end(), parents_val) - nodal_type_var_col.begin();
-      int outcome = int(nodal_type_var(row,pos_col));
-      ct[pos][j] = std::to_string(outcome);
-    }
-  }
-
-  for(int i = 0; i < ct.size(); ++i){
-    for(int j = 0; j < n_causal_types; ++j){
-      outcomes_mat_access[i][j] = std::stoi(ct[i][j]);
-    }
-  }
-
-  return;
-}
-
-
-
 //' cpp implementation of realise_outcomes for map_query_to_causal_types. Dos are evaluated
 //' and the realised outcomes for the variable they are attached to is written to a bigmatrix.
 //'
@@ -397,7 +390,7 @@ void realise_outcomes_c(SEXP outcomes,
 //' @param n_causal_types int specifying number of causal types
 //' @param vars string vector with names of variables dos are attached to
 // [[Rcpp::export]]
-std::vector<std::vector<int>> realise_outcomes_singular_c(
+std::vector<std::vector<int>> query_to_ct_c(
                                  std::vector<std::string> nodes,
                                  std::vector<std::string> endogenous_nodes,
                                  List dos,
