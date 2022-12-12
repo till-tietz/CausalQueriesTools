@@ -6,7 +6,6 @@
 and the realised outcomes for the variable they are attached to is written to a bigmatrix.}
 \usage{
 realise_outcomes_singular_c(
-  outcomes,
   nodes,
   endogenous_nodes,
   dos,
@@ -19,8 +18,6 @@ realise_outcomes_singular_c(
 )
 }
 \arguments{
-\item{outcomes}{memory address of a bigmatrix object}
-
 \item{nodes}{string vector of nodes names}
 
 \item{endogenous_nodes}{string vector of endogenous nodes}

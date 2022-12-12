@@ -98,8 +98,20 @@ deparse_query <- function(query, join_by, nodes){
 
 
 #map query to causal types
-query_to_ct <- function(model,query,join_by = "|"){
+query_to_ct <- function(model,query,join_by = "|", file_name = ""){
 
-  deparse_query(query = query, join_by = join_by, nodes = model$nodes)
+  #deparse query
+  query_deparsed <- deparse_query(query = query, join_by = join_by, nodes = model$nodes)
+
+  #get number of causal types
+  nct <- sapply(model$nodal_types,length) |>
+    prod()
+
+
+
 
 }
+
+
+
+
