@@ -77,15 +77,3 @@ query_to_ct_c <- function(nodes, endogenous_nodes, dos, parents_list, nodal_type
     .Call(`_CQBigModel_query_to_ct_c`, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars)
 }
 
-#' generates realized outcomes for all causal types by sequentially calculating endogenous nodes.
-#'
-#' @param d a data.frame of causal types passed from within realise_outcomes
-#' @param endogenous_nodes a character vector with names of endogenous nodes
-#' @param parents_list a list of parents nodes for each node
-#' @param nodal_types_collapsed a list of collapsed nodal types
-#' @param nodal_types a list of uncolpased nodal types
-#' @return a data.frame of realized outcomes for each causal type
-realise_outcome_c_old <- function(d, endogenous_nodes, parents_list, nodal_types_collapsed, nodal_types) {
-    .Call(`_CQBigModel_realise_outcome_c_old`, d, endogenous_nodes, parents_list, nodal_types_collapsed, nodal_types)
-}
-

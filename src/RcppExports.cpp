@@ -102,21 +102,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// realise_outcome_c_old
-DataFrame realise_outcome_c_old(DataFrame d, std::vector<std::string> endogenous_nodes, List parents_list, List nodal_types_collapsed, List nodal_types);
-RcppExport SEXP _CQBigModel_realise_outcome_c_old(SEXP dSEXP, SEXP endogenous_nodesSEXP, SEXP parents_listSEXP, SEXP nodal_types_collapsedSEXP, SEXP nodal_typesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< DataFrame >::type d(dSEXP);
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type endogenous_nodes(endogenous_nodesSEXP);
-    Rcpp::traits::input_parameter< List >::type parents_list(parents_listSEXP);
-    Rcpp::traits::input_parameter< List >::type nodal_types_collapsed(nodal_types_collapsedSEXP);
-    Rcpp::traits::input_parameter< List >::type nodal_types(nodal_typesSEXP);
-    rcpp_result_gen = Rcpp::wrap(realise_outcome_c_old(d, endogenous_nodes, parents_list, nodal_types_collapsed, nodal_types));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_CQBigModel_get_type_prob_c", (DL_FUNC) &_CQBigModel_get_type_prob_c, 2},
@@ -125,7 +110,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_CQBigModel_get_type_prob_multiple_cstd", (DL_FUNC) &_CQBigModel_get_type_prob_multiple_cstd, 6},
     {"_CQBigModel_realise_outcomes_c", (DL_FUNC) &_CQBigModel_realise_outcomes_c, 9},
     {"_CQBigModel_query_to_ct_c", (DL_FUNC) &_CQBigModel_query_to_ct_c, 9},
-    {"_CQBigModel_realise_outcome_c_old", (DL_FUNC) &_CQBigModel_realise_outcome_c_old, 5},
     {NULL, NULL, 0}
 };
 

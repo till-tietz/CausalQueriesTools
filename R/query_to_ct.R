@@ -17,90 +17,107 @@ deparse_query <- function(query, join_by, nodes){
     query <- CausalQueries::expand_wildcard(query, join_by = join_by)
   }
 
-  # Global Variables
-  i <- 0
-  list_names <- ""
-  continue <- TRUE
-
-  # strip whitespaces split query into single characters locate opening brackets and reverse oder
+  #split query into individual characters
   w_query <- gsub(" ", "", query) %>%
     strsplit("") %>%
     unlist()
+
+  #detect double character operators (==,>=,>=) and re-join
+  double_operator <- grep(">|<|=",w_query)
+  double_operator_id <- which(diff(double_operator) == 1)
+
+  if(length(double_operator_id) > 0){
+    for(i in double_operator_id){
+      w_query[double_operator[i]] <- paste(w_query[double_operator[i]],w_query[double_operator[i]+1], sep = "")
+    }
+    w_query <- w_query[-(double_operator[double_operator_id]+1)]
+  }
+
+  #re-join variable names (find non variable name symbols, pad with white space,
+  #collapse vector into string, split at white space)
+  sym <- paste(c("\\[","\\]","=","==",">=",">","<","<=",
+                 "\\&","\\|"),collapse = "|")
+  sym_id <- grep(sym,w_query)
+
+  w_query[sym_id] <- paste0(" ",w_query[sym_id]," ")
+  w_query <- paste(w_query,collapse = "")%>%
+    strsplit(.," ")%>%
+    unlist()
+  w_query <- w_query[w_query != ""]
+
+  #find positions of variables and brackets
+  node_pos <- grep(paste(nodes, collapse = "|"),w_query)
   bracket_starts <- rev(grep("\\[", w_query))
   bracket_ends <- rev(grep("\\]", w_query))
 
   if (length(bracket_starts) != length(bracket_ends)) {
     stop("Either '[' or ']' missing.")
   }
-  if (length(bracket_starts) == 0) {
-    continue = FALSE
-  }
 
+  #drop variables within brackets from bracket positions
+  drop <- sapply(node_pos, function(i){
+    sapply(1:length(bracket_starts), function(j){
+      bracket_starts[j] < i && i < bracket_ends[j]
+    })%>%
+      any()
+  })
+
+  node_pos <- rev(node_pos[!drop])
   dos <- list()
   vars <- c()
   var_order <- c()
 
-  while (continue) {
-    i <- i + 1
+  for(i in 1:length(node_pos)){
 
-    # start at the latest found '[' find the closest subsequent ']' remove brackets and extract
-    # expression
-    .query <- w_query[(bracket_starts[i]):length(w_query)]
-    .bracket_ends <- grep("\\]", .query)[1]
-    .query <- .query[1:.bracket_ends]
-    brackets <- grepl("\\[|\\]", .query)
-    .query <- .query[!brackets]
-
-    # Split expression by ',' 'x = 1, m = 0' into 'x = 1' 'm=0'
-    .query <- paste0(.query, collapse = "")
-    .query <- unlist(strsplit(.query, ","))
-
-    # Walks through splitted expressions (i.e dos) and evaluates each expression when possible
-    if(length(.query) == 0) {
-      stop("\nquery does not return any causal types.\nNote that expressions of the form `Y[]==1` are not allowed for mapping queries to causal types.\nSpecify queries as (e.g.) `Y==1` or `Y[X=0] == 1` instead.")
-    }
-
-    for (j in 1:length(.query)) {
-      do <- paste("list(",.query[j],")", sep = "") %>%
+    if(w_query[node_pos[i] + 1] != "["){
+      do <- paste("list(",w_query[node_pos[i]]," = '' )", sep = "") %>%
         parse(text = .) %>%
         eval(.,envir = c())
+      dos <- c(dos,do)
+      vars <- c(vars,w_query[node_pos[i]])
+      vname <- paste("var",i,sep="")
+      var_order <- c(var_order,vname)
+      w_query[node_pos[i]] <- vname
+    } else {
+      open_bracket <- node_pos[i] + 2
+      close_bracket <- bracket_ends[bracket_ends > open_bracket]
+      close_bracket <- close_bracket[which.max(open_bracket - close_bracket)] - 1
+      sub_query <- w_query[open_bracket:close_bracket]
 
-      if (!names(do) %in% nodes){
-        stop(paste("Variable", names(do), "is not part of the model."))
+      # Split expression by ',' 'x = 1, m = 0' into 'x = 1' 'm=0'
+      sub_query <- paste0(sub_query, collapse = "")
+      sub_query <- unlist(strsplit(sub_query, ","))
+
+      # Walks through splitted expressions (i.e dos) and evaluates each expression when possible
+      if(length(sub_query) == 0) {
+        stop("\nquery does not return any causal types.\nNote that expressions of the form `Y[]==1` are not allowed for mapping queries to causal types.\nSpecify queries as (e.g.) `Y==1` or `Y[X=0] == 1` instead.")
       }
 
-      dos <- c(dos,do)
+      for (j in 1:length(sub_query)) {
+        do <- paste("list(",sub_query[j],")", sep = "") %>%
+          parse(text = .) %>%
+          eval(.,envir = c())
+
+        if (!names(do) %in% nodes){
+          stop(paste("Variable", names(do), "is not part of the model."))
+        }
+
+        dos <- c(dos,do)
+      }
+      vars <- c(vars,w_query[node_pos[i]])
+      vname <- paste("var",i,sep="")
+      var_order <- c(var_order,vname)
+      w_query[node_pos[i]] <- vname
+      w_query <- w_query[-((open_bracket - 1):(close_bracket + 1))]
     }
-
-    b <- 1:bracket_starts[i]
-    var <- paste0(w_query[b], collapse = "")
-    var <- CausalQueries:::st_within(var)
-    var <- var[length(var)]
-    vars <- c(vars,var)
-
-    # Save result from last iteration and remove corresponding expression w_query
-    var_length <- nchar(var)
-
-    .bracket_ends <- bracket_starts[i] + .bracket_ends - 1
-    s <- seq(bracket_starts[i] - var_length, .bracket_ends)
-    vname <- paste0("var", i)
-    var_order <- c(var_order,vname)
-    w_query[s[1]] <- vname
-    w_query[s[2:length(s)]] <- ""
-
-
-    # Stop loop there are no [] left
-    if (!any(grep("\\[|\\]", w_query))) {
-      continue <- FALSE
-    }
-  }  # end of [] application
-  w_query <- w_query[w_query != ""]
+  }
   return(list(w_query = w_query,
               dos = rev(dos),
               vars = rev(vars),
               w_query_order = rev(var_order))
-         )
+  )
 }
+
 
 
 
