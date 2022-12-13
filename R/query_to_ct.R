@@ -1,4 +1,11 @@
-#helper for query deparsing
+#' extract variables and associated do-operations from query
+#' and re-write query in terms of realized outcomes post do-operation
+#'
+#' @param query String specifying query
+#' @param join_by Logical operator. Used to connect causal statements: \emph{AND} ('&') or \emph{OR} ('|').
+#' @param nodes Character String of nodes in model
+#' @return A List containing, the reconstructed query, a list of do-operations, a vector of node names attached to the dos, a vector of newly constructed variables
+#' @keywords internal
 
 deparse_query <- function(query, join_by, nodes){
 
