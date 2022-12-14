@@ -111,6 +111,15 @@ deparse_query <- function(query, join_by, nodes){
       w_query <- w_query[-((open_bracket - 1):(close_bracket + 1))]
     }
   }
+
+  #turn w_query into list of pairwise operations
+  ind <- c(1,grep("\\&",w_query),length(w_query))
+  w_query <- lapply(1:(length(ind)-1), function(i){
+    string <- w_query[ind[i]:ind[i+1]]
+    string <- string[string != "&"]
+  })
+
+
   return(list(w_query = w_query,
               dos = rev(dos),
               vars = rev(vars),

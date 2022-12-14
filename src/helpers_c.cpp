@@ -389,6 +389,7 @@ std::vector<int> pair_operation(std::vector<int> a,
 //' @param nodal_types_collapsed List of collapsed nodal types
 //' @param n_causal_types int specifying number of causal types
 //' @param vars string vector with names of variables dos are attached to
+//' @param List of pairwise operations query is made up of
 // [[Rcpp::export]]
 std::vector<std::vector<int>> query_to_ct_c(
                                  std::vector<std::string> nodes,
@@ -399,7 +400,8 @@ std::vector<std::vector<int>> query_to_ct_c(
                                  List nodal_types_colnames,
                                  List nodal_types_collapsed,
                                  int n_causal_types,
-                                 std::vector<std::string> vars){
+                                 std::vector<std::string> vars,
+                                 List query_operations){
 
   //vector of vectors to store data realisations
   std::vector<std::vector<int>> out_mat;
