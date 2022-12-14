@@ -401,7 +401,7 @@ std::vector<std::vector<int>> query_to_ct_c(
                                  int n_causal_types,
                                  std::vector<std::string> vars){
 
-  //vector of vectors to stroe data realisations
+  //vector of vectors to store data realisations
   std::vector<std::vector<int>> out_mat;
   for(int i = 0; i < vars.size(); ++i){
     out_mat.push_back(std::vector<int> (n_causal_types));
@@ -415,42 +415,45 @@ std::vector<std::vector<int>> query_to_ct_c(
     std::string in_dos_i = in_dos[i];
     int pos = std::find(nodes.begin(), nodes.end(), in_dos_i) - nodes.begin();
     int dos_i_int = dos[i];
-    std::vector<std::string> dos_i;
-    dos_i.push_back(std::to_string(dos_i_int));
-    ct[pos] = rep_times(dos_i, n_causal_types);
 
-    // loop over each endogenous node
-    for(int j = 0; j < endogenous_nodes.size(); ++j){
-      std::string var = endogenous_nodes[j];
-      int pos = std::find(nodes.begin(), nodes.end(), var) - nodes.begin();
-      //get causal type realizations for endogenous node
-      std::vector<std::string> child_type = ct[pos];
-      //get parents of endogenous node
-      std::vector<std::string> parents = parents_list[var];
-      //get nodal types of endogenous node
-      std::vector<std::string> nodal_label = nodal_types_collapsed[var];
-      //get uncollapsed nodal types for endogenous node
-      arma::mat nodal_type_var = nodal_types[var];
-      //get uncollapsed nodal types colnames
-      std::vector<std::string> nodal_type_var_col = nodal_types_colnames[var];
+    if(dos_i_int >= 0){
+      std::vector<std::string> dos_i;
+      dos_i.push_back(std::to_string(dos_i_int));
+      ct[pos] = rep_times(dos_i, n_causal_types);
 
-      //loop over causal types
-      for(int k = 0; k < child_type.size(); ++k){
-        //get causal type
-        std::string type = child_type[k];
-        //generate empty vector for parent realization
-        std::string parents_val;
-        //get parent realization
-        for(int l = 0; l < parents.size(); ++l){
-          int pos_parent = std::find(nodes.begin(), nodes.end(), parents[l]) - nodes.begin();
-          parents_val.append(ct[pos_parent][k]);
+      // loop over each endogenous node
+      for(int j = 0; j < endogenous_nodes.size(); ++j){
+        std::string var = endogenous_nodes[j];
+        int pos = std::find(nodes.begin(), nodes.end(), var) - nodes.begin();
+        //get causal type realizations for endogenous node
+        std::vector<std::string> child_type = ct[pos];
+        //get parents of endogenous node
+        std::vector<std::string> parents = parents_list[var];
+        //get nodal types of endogenous node
+        std::vector<std::string> nodal_label = nodal_types_collapsed[var];
+        //get uncollapsed nodal types for endogenous node
+        arma::mat nodal_type_var = nodal_types[var];
+        //get uncollapsed nodal types colnames
+        std::vector<std::string> nodal_type_var_col = nodal_types_colnames[var];
+
+        //loop over causal types
+        for(int k = 0; k < child_type.size(); ++k){
+          //get causal type
+          std::string type = child_type[k];
+          //generate empty vector for parent realization
+          std::string parents_val;
+          //get parent realization
+          for(int l = 0; l < parents.size(); ++l){
+            int pos_parent = std::find(nodes.begin(), nodes.end(), parents[l]) - nodes.begin();
+            parents_val.append(ct[pos_parent][k]);
+          }
+          //find row position of type
+          int row = std::find(nodal_label.begin(),nodal_label.end(), type) - nodal_label.begin();
+          //find realization and add to J
+          int pos_col = std::find(nodal_type_var_col.begin(), nodal_type_var_col.end(), parents_val) - nodal_type_var_col.begin();
+          int outcome = int(nodal_type_var(row,pos_col));
+          ct[pos][k] = std::to_string(outcome);
         }
-        //find row position of type
-        int row = std::find(nodal_label.begin(),nodal_label.end(), type) - nodal_label.begin();
-        //find realization and add to J
-        int pos_col = std::find(nodal_type_var_col.begin(), nodal_type_var_col.end(), parents_val) - nodal_type_var_col.begin();
-        int outcome = int(nodal_type_var(row,pos_col));
-        ct[pos][k] = std::to_string(outcome);
       }
     }
 
@@ -461,8 +464,6 @@ std::vector<std::vector<int>> query_to_ct_c(
       out_mat[i][m] = std::stoi(ct[pos][m]);
     }
   }
-
-
 
   return out_mat;
 

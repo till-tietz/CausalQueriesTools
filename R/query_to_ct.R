@@ -70,7 +70,7 @@ deparse_query <- function(query, join_by, nodes){
   for(i in 1:length(node_pos)){
 
     if(w_query[node_pos[i] + 1] != "["){
-      do <- paste("list(",w_query[node_pos[i]]," = '' )", sep = "") %>%
+      do <- paste("list(",w_query[node_pos[i]]," = -1 )", sep = "") %>%
         parse(text = .) %>%
         eval(.,envir = c())
       dos <- c(dos,do)
