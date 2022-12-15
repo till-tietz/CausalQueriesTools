@@ -135,12 +135,14 @@ query_to_ct <- function(model,query,join_by = "|", file_name = ""){
 
   #deparse query
   query_deparsed <- deparse_query(query = query, join_by = join_by, nodes = model$nodes)
-
   #get number of causal types
   nct <- sapply(model$nodal_types,length) |>
     prod()
-
-
+  #get uncollapsed nodal types
+  nt_unc <- model$nodal_types |>
+    uncollapse_nt()
+  #get endogenous nodes
+  endog <- attributes(model)$nonroot_nodes
 
 
 }

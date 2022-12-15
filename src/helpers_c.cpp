@@ -391,18 +391,21 @@ std::vector<int> pair_operation(std::vector<int> a,
 //' @param vars string vector with names of variables dos are attached to
 //' @param List of pairwise operations query is made up of
 // [[Rcpp::export]]
-std::vector<int> query_to_ct_c(
-                                 std::vector<std::string> nodes,
-                                 std::vector<std::string> endogenous_nodes,
-                                 List dos,
-                                 List parents_list,
-                                 List nodal_types,
-                                 List nodal_types_colnames,
-                                 List nodal_types_collapsed,
-                                 int n_causal_types,
-                                 std::vector<std::string> vars,
-                                 List query_operations,
-                                 std::vector<std::string> var_order){
+void query_to_ct_c(SEXP outcomes,
+                   std::vector<std::string> nodes,
+                   std::vector<std::string> endogenous_nodes,
+                   List dos,
+                   List parents_list,
+                   List nodal_types,
+                   List nodal_types_colnames,
+                   List nodal_types_collapsed,
+                   int n_causal_types,
+                   std::vector<std::string> vars,
+                   List query_operations,
+                   std::vector<std::string> var_order){
+  //connect to bigmat
+  Rcpp::XPtr<BigMatrix> outcomes_mat(outcomes);
+  MatrixAccessor<int> outcomes_mat_access(*outcomes_mat);
 
   //vector of vectors to store data realisations
   std::vector<std::vector<int>> out_mat;
@@ -519,7 +522,12 @@ std::vector<int> query_to_ct_c(
     ret = op_init[0];
   }
 
-  return ret;
+  //write to bigmatrix
+  for(int i = 0; i < ret.size(); ++i){
+    outcomes_mat_access[0][i] = ret[i];
+  }
+
+  return;
 
 }
 
