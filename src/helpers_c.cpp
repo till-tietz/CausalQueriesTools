@@ -481,13 +481,14 @@ std::vector<int> query_to_ct_c(
   //initial operations
   std::vector<std::vector<int>> op_init;
 
+  //do initial individual binary arithmetic operations
   for(int i = 0; i < query_operations.size(); ++i){
     std::vector<std::string> op_i = query_operations[i];
 
     int pos_elem_1 = std::find(var_order.begin(), var_order.end(), op_i[0]) - var_order.begin();
     std::vector<int> elem_1;
     if(pos_elem_1 == var_order.size()){
-      //int elem_1 = op_i[0]; convert string to int here somehow and push back
+      elem_1.push_back(std::stoi(op_i[0]));
     } else {
       elem_1 = out_mat[pos_elem_1];
     }
@@ -495,7 +496,7 @@ std::vector<int> query_to_ct_c(
     int pos_elem_2 = std::find(var_order.begin(), var_order.end(), op_i[2]) - var_order.begin();
     std::vector<int> elem_2;
     if(pos_elem_2 == var_order.size()){
-      //int elem_2 = op_i[2]; convert string to int here somehow and push back
+      elem_2.push_back(std::stoi(op_i[2]));
     } else {
       elem_2 = out_mat[pos_elem_2];
     }
@@ -504,10 +505,15 @@ std::vector<int> query_to_ct_c(
 
   }
 
+  //combine binary arithmetic results with &
   std::vector<int> ret;
 
-  if(query_operations.size() > 1){
+  if(op_init.size() > 1){
     //to do >> write & operations over op_init
+    ret = pair_operation(op_init[0],op_init[1], "&");
+    for(int i = 2; i < op_init.size(); ++i){
+      ret = pair_operation(ret,op_init[i], "&");
+    }
   } else {
     //if only one expression supplied simply return result of that operation
     ret = op_init[0];
