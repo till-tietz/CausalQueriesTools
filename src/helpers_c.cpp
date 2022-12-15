@@ -391,7 +391,7 @@ std::vector<int> pair_operation(std::vector<int> a,
 //' @param vars string vector with names of variables dos are attached to
 //' @param List of pairwise operations query is made up of
 // [[Rcpp::export]]
-std::vector<std::vector<int>> query_to_ct_c(
+std::vector<int> query_to_ct_c(
                                  std::vector<std::string> nodes,
                                  std::vector<std::string> endogenous_nodes,
                                  List dos,
@@ -401,7 +401,8 @@ std::vector<std::vector<int>> query_to_ct_c(
                                  List nodal_types_collapsed,
                                  int n_causal_types,
                                  std::vector<std::string> vars,
-                                 List query_operations){
+                                 List query_operations,
+                                 std::vector<std::string> var_order){
 
   //vector of vectors to store data realisations
   std::vector<std::vector<int>> out_mat;
@@ -476,7 +477,43 @@ std::vector<std::vector<int>> query_to_ct_c(
     }
   }
 
-  return out_mat;
+  //apply mathematical operations
+  //initial operations
+  std::vector<std::vector<int>> op_init;
+
+  for(int i = 0; i < query_operations.size(); ++i){
+    std::vector<std::string> op_i = query_operations[i];
+
+    int pos_elem_1 = std::find(var_order.begin(), var_order.end(), op_i[0]) - var_order.begin();
+    std::vector<int> elem_1;
+    if(pos_elem_1 == var_order.size()){
+      //int elem_1 = op_i[0]; convert string to int here somehow and push back
+    } else {
+      elem_1 = out_mat[pos_elem_1];
+    }
+
+    int pos_elem_2 = std::find(var_order.begin(), var_order.end(), op_i[2]) - var_order.begin();
+    std::vector<int> elem_2;
+    if(pos_elem_2 == var_order.size()){
+      //int elem_2 = op_i[2]; convert string to int here somehow and push back
+    } else {
+      elem_2 = out_mat[pos_elem_2];
+    }
+
+    op_init.push_back(pair_operation(elem_1, elem_2, op_i[1]));
+
+  }
+
+  std::vector<int> ret;
+
+  if(query_operations.size() > 1){
+    //to do >> write & operations over op_init
+  } else {
+    //if only one expression supplied simply return result of that operation
+    ret = op_init[0];
+  }
+
+  return ret;
 
 }
 
