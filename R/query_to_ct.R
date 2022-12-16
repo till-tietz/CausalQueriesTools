@@ -144,7 +144,32 @@ query_to_ct <- function(model,query,join_by = "|", file_name = ""){
   #get endogenous nodes
   endog <- attributes(model)$nonroot_nodes
 
+  #make bigmatrix
+  query_mat <- bigmemory::filebacked.big.matrix(
+      nrow = n_nt,
+      ncol = length(qer$vars),
+      type = "integer",
+      init = 0,
+      backingfile = paste(file_name, ".bin", sep = ""),
+      backingpath = ".",
+      descriptorfile = paste(file_name, ".desc", sep = ""),
+      dimnames = c(NULL, NULL)
+    )
 
+  CQBigModel::query_to_ct_c(
+    outcomes = query_mat@address,
+    nodes = model$nodes,
+    endogenous_nodes = endog,
+    dos = query_deparsed$dos,
+    parents_list = CausalQueries::get_parents(model),
+    nodal_types = nt_unc,
+    nodal_types_colnames = lapply(nt_unc, colnames),
+    nodal_types_collapsed = model$nodal_types,
+    n_causal_types = nct,
+    vars = query_deparsed$vars,
+    query_operations = query_deparsed$w_query,
+    var_order = query_deparsed$w_query_order
+  )
 }
 
 
