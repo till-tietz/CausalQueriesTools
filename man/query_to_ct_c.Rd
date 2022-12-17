@@ -6,6 +6,7 @@
 and the realised outcomes for the variable they are attached to is written to a bigmatrix.}
 \usage{
 query_to_ct_c(
+  outcomes,
   nodes,
   endogenous_nodes,
   dos,
@@ -14,7 +15,9 @@ query_to_ct_c(
   nodal_types_colnames,
   nodal_types_collapsed,
   n_causal_types,
-  vars
+  vars,
+  query_operations,
+  var_order
 )
 }
 \arguments{
@@ -35,6 +38,8 @@ query_to_ct_c(
 \item{n_causal_types}{int specifying number of causal types}
 
 \item{vars}{string vector with names of variables dos are attached to}
+
+\item{List}{of pairwise operations query is made up of}
 }
 \description{
 cpp implementation of realise_outcomes for map_query_to_causal_types. Dos are evaluated

@@ -127,7 +127,15 @@ deparse_query <- function(query, join_by, nodes){
   )
 }
 
-
+#' map query to causal types. Finds causal types associated with query,
+#' writes them to a bigmatrix and returns a pointer to the assocaited
+#' memory address.
+#'
+#' @param model a causal model
+#' @param query string specifying query
+#' @param join_by Logical operator. Used to connect causal statements: \emph{AND} ('&') or \emph{OR} ('|').
+#' @param file_name file name for the file backed bigmatrix object
+#' @return pointer to a bigmatrix memory location
 
 
 #map query to causal types
@@ -170,6 +178,8 @@ query_to_ct <- function(model,query,join_by = "|", file_name = ""){
     query_operations = query_deparsed$w_query,
     var_order = query_deparsed$w_query_order
   )
+
+  return(query_mat)
 }
 
 

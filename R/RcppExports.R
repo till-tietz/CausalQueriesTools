@@ -74,7 +74,7 @@ realise_outcomes_c <- function(outcomes, nodes, endogenous_nodes, dos, parents_l
 #' @param n_causal_types int specifying number of causal types
 #' @param vars string vector with names of variables dos are attached to
 #' @param List of pairwise operations query is made up of
-query_to_ct_c <- function(nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars, query_operations, var_order) {
-    .Call(`_CQBigModel_query_to_ct_c`, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars, query_operations, var_order)
+query_to_ct_c <- function(outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars, query_operations, var_order) {
+    invisible(.Call(`_CQBigModel_query_to_ct_c`, outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars, query_operations, var_order))
 }
 
