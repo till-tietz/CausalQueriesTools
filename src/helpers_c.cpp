@@ -87,10 +87,12 @@ using namespace Rcpp;
 //' Combining this information with the position of a causal type allows us to determine the nodal types used in the construction
 //' of the given causal type.
 //'
-//' @param nodal_types a List of nodal types
-//' @return an integer vector of repetitions for each nodes' nodal type vector
-// [[Rcpp::export]]
-std::vector<int> get_causal_type_pattern(List nodal_types){
+//' parameter nodal_types a List of nodal types
+//' parameter nodes string vector of node names
+//' return a map of node names and an integer of repetitions for each nodes' nodal type vector
+
+std::map<std::string, int> get_causal_type_pattern(List &nodal_types,
+                                                   std::vector<std::string> &nodes){
 
   //number of nodal types per node
   std::vector<int> n_nodal_types(nodal_types.size());
@@ -102,14 +104,23 @@ std::vector<int> get_causal_type_pattern(List nodal_types){
 
   n_nodal_types.insert(n_nodal_types.begin(),1);
   n_nodal_types.insert(n_nodal_types.end(),1);
-  std::vector<int> ret;
+  std::vector<int> reps;
 
   for(int i = n_nodal_types.size() - 2; i > 0; --i){
-    ret.push_back(std::accumulate(std::begin(n_nodal_types), std::begin(n_nodal_types) + i, 1, std::multiplies<int>()));
+    reps.push_back(std::accumulate(std::begin(n_nodal_types), std::begin(n_nodal_types) + i, 1, std::multiplies<int>()));
   }
+  std::reverse(reps.begin(), reps.end());
 
-  return ret;
+
+  std::map<std::string, int> map;
+  std::transform(nodes.begin(), nodes.end(), reps.begin(), std::inserter(map, map.end()),
+                 [](std::string const &s, int i) {
+                   return std::make_pair(s, i);
+                 });
+
+  return map;
 }
+
 
 //********************
 //* realise outcomes *
