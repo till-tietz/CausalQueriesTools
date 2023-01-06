@@ -19,8 +19,8 @@ deparse_query <- function(query, join_by, nodes){
   }
 
   #split query into individual characters
-  w_query <- gsub(" ", "", query) %>%
-    strsplit("") %>%
+  w_query <- gsub(" ", "", query) |>
+    strsplit("") |>
     unlist()
 
   #detect double character operators (==,>=,>=) and re-join
@@ -41,8 +41,8 @@ deparse_query <- function(query, join_by, nodes){
   sym_id <- grep(sym,w_query)
 
   w_query[sym_id] <- paste0(" ",w_query[sym_id]," ")
-  w_query <- paste(w_query,collapse = "")%>%
-    strsplit(.," ")%>%
+  w_query <- paste(w_query,collapse = "")|>
+    strsplit(" ")|>
     unlist()
   w_query <- w_query[w_query != ""]
 
@@ -59,7 +59,7 @@ deparse_query <- function(query, join_by, nodes){
   drop <- sapply(node_pos, function(i){
     sapply(1:length(bracket_starts), function(j){
       bracket_starts[j] < i && i < bracket_ends[j]
-    })%>%
+    })|>
       any()
   })
 
@@ -72,9 +72,9 @@ deparse_query <- function(query, join_by, nodes){
 
     if(w_query[node_pos[i] + 1] != "["){
       do <- list()
-      do_j <- paste("list(",w_query[node_pos[i]]," = -1 )", sep = "") %>%
-        parse(text = .) %>%
-        eval(.,envir = c())
+      do_j <- paste("list(",w_query[node_pos[i]]," = -1 )", sep = "") |>
+        parse(file = "", n = NULL) |>
+        eval(envir = c())
       do <- c(do,do_j)
       dos[[i]] <- do
       vars <- c(vars,w_query[node_pos[i]])
@@ -98,9 +98,9 @@ deparse_query <- function(query, join_by, nodes){
 
       do <- list()
       for (j in 1:length(sub_query)) {
-        do_j <- paste("list(",sub_query[j],")", sep = "") %>%
-          parse(text = .) %>%
-          eval(.,envir = c())
+        do_j <- paste("list(",sub_query[j],")", sep = "") |>
+          parse(file = "", n = NULL) |>
+          eval(envir = c())
 
         if (!names(do_j) %in% nodes){
           stop(paste("Variable", names(do_j), "is not part of the model."))
