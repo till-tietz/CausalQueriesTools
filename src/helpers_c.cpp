@@ -10,35 +10,87 @@ using namespace Rcpp;
 //***************************
 
 // cpp implementation of standard R rep
-std::vector<std::string> rep_times(std::vector<std::string> x, int n){
+//std::vector<std::string> rep_times(std::vector<std::string> x, int n){
+//
+//  std::vector<std::string> ret;
 
-  std::vector<std::string> ret;
-
-  for(int i = 0; i < n; ++i){
-    ret.insert(ret.end(),x.begin(),x.end());
-  }
-
-  return ret;
-}
+//  for(int i = 0; i < n; ++i){
+//    ret.insert(ret.end(),x.begin(),x.end());
+//  }
+//
+//  return ret;
+//}
 
 // cpp implementation of R rep with each argument
-std::vector<std::string> rep_each(std::vector<std::string> x, int n){
+//std::vector<std::string> rep_each(std::vector<std::string> x, int n){
 
-  std::vector<std::string> ret(x.size() * n);
-  int ind = -1;
-
-  for(int i = 0; i < x.size(); ++i){
-    for(int j = 0; j < n; ++j){
-      ind += 1;
-      ret[ind] = x[i];
-    }
-  }
-
-  return ret;
-}
+//  std::vector<std::string> ret(x.size() * n);
+//  int ind = -1;
+//
+//  for(int i = 0; i < x.size(); ++i){
+//    for(int j = 0; j < n; ++j){
+//      ind += 1;
+//      ret[ind] = x[i];
+//    }
+//  }
+//
+//  return ret;
+//}
 
 // cpp helper to make causal types
-std::vector<std::vector<std::string>> make_causal_types_c(List nodal_types){
+//void make_causal_types_c_test(SEXP ct_mat_address,
+//                              List nodal_types,
+//                              std::vector<std::string> unique_nodal_types){
+//
+  //connect to bigmat
+//  Rcpp::XPtr<BigMatrix> ct_mat(ct_mat_address);
+//  MatrixAccessor<int> ct_mat_access(*ct_mat);
+
+  //number of nodal types per node
+//  std::vector<int> n_nodal_types(nodal_types.size());
+//
+//  for(int i = 0; i < nodal_types.size(); ++i){
+//    std::vector<std::string> nodal_types_i = nodal_types[i];
+//    n_nodal_types[i] = nodal_types_i.size();
+//  }
+//
+//  n_nodal_types.insert(n_nodal_types.begin(),1);
+//  n_nodal_types.insert(n_nodal_types.end(),1);
+//
+//  for(int i = n_nodal_types.size() - 2; i > 0; --i){
+//
+//    int each = std::accumulate(std::begin(n_nodal_types), std::begin(n_nodal_types) + i, 1, std::multiplies<int>());
+//    int times = std::accumulate(std::begin(n_nodal_types) + i + 1, std::end(n_nodal_types), 1, std::multiplies<int>());
+//    std::vector<std::string> nodal_types_i = nodal_types[i-1];
+//    std::vector<int> nodal_types_int(nodal_types_i.size());
+//
+//    for(int j = 0; j < nodal_types_i.size(); ++j){
+//      nodal_types_int[j] = std::find(unique_nodal_types.begin(), unique_nodal_types.end(), nodal_types_i[j]) - unique_nodal_types.begin();
+//    }
+//
+//    int pos = 0;
+//    for(int j = 0; j < times; ++j){
+//      for(int k = 0; k < nodal_types_int.size(); ++k){
+//        for(int l = 0; l < each; ++l){
+//          ct_mat_access[i-1][pos] = nodal_types_int[k];
+//          pos += 1;
+//        }
+//      }
+//    }
+//
+//  }
+//  return;
+//}
+
+
+//' Determines the number of times each nodes' vector of nodal types is repeated to generate the pattern of causal types.
+//' Combining this information with the position of a causal type allows us to determine the nodal types used in the construction
+//' of the given causal type.
+//'
+//' @param nodal_types a List of nodal types
+//' @return an integer vector of repetitions for each nodes' nodal type vector
+// [[Rcpp::export]]
+std::vector<int> get_causal_type_pattern(List nodal_types){
 
   //number of nodal types per node
   std::vector<int> n_nodal_types(nodal_types.size());
@@ -50,19 +102,13 @@ std::vector<std::vector<std::string>> make_causal_types_c(List nodal_types){
 
   n_nodal_types.insert(n_nodal_types.begin(),1);
   n_nodal_types.insert(n_nodal_types.end(),1);
-
-  std::vector<std::vector<std::string>> causal_types(nodal_types.size());
+  std::vector<int> ret;
 
   for(int i = n_nodal_types.size() - 2; i > 0; --i){
-    std::vector<std::string> ct_i;
-    int each = std::accumulate(std::begin(n_nodal_types), std::begin(n_nodal_types) + i, 1, std::multiplies<int>());
-    ct_i = rep_each(nodal_types[i-1],each);
-    int times = std::accumulate(std::begin(n_nodal_types) + i + 1, std::end(n_nodal_types), 1, std::multiplies<int>());
-    ct_i = rep_times(ct_i,times);
-    causal_types[i-1] = ct_i;
+    ret.push_back(std::accumulate(std::begin(n_nodal_types), std::begin(n_nodal_types) + i, 1, std::multiplies<int>()));
   }
 
-  return causal_types;
+  return ret;
 }
 
 //********************
@@ -85,6 +131,7 @@ std::vector<std::vector<std::string>> make_causal_types_c(List nodal_types){
 //' @param n_causal_types int specifying number of causal types
 // [[Rcpp::export]]
 void realise_outcomes_c(SEXP outcomes,
+                        SEXP causal_types,
                         std::vector<std::string> nodes,
                         std::vector<std::string> endogenous_nodes,
                         List dos,
@@ -92,14 +139,17 @@ void realise_outcomes_c(SEXP outcomes,
                         List nodal_types,
                         List nodal_types_colnames,
                         List nodal_types_collapsed,
+                        std::vector<std::string> unique_nodal_types,
                         int n_causal_types){
 
-  //connect to bigmat
+  //connect to output bigmat
   Rcpp::XPtr<BigMatrix> outcomes_mat(outcomes);
   MatrixAccessor<int> outcomes_mat_access(*outcomes_mat);
 
-  // get causal types
-  std::vector<std::vector<std::string>> ct = make_causal_types_c(nodal_types_collapsed);
+  //connect to causal types bigmat
+  Rcpp::XPtr<BigMatrix> ct_mat(causal_types);
+  MatrixAccessor<int> ct(*ct_mat);
+
   // fill in values for dos
   std::vector<std::string> in_dos = dos.names();
   for(int i = 0; i < in_dos.size(); ++i){
@@ -399,6 +449,7 @@ void query_to_ct_c(SEXP outcomes,
                    List nodal_types,
                    List nodal_types_colnames,
                    List nodal_types_collapsed,
+                   std::vector<std::string> unique_nodal_types,
                    int n_causal_types,
                    std::vector<std::string> vars,
                    List query_operations,
@@ -407,42 +458,42 @@ void query_to_ct_c(SEXP outcomes,
   Rcpp::XPtr<BigMatrix> outcomes_mat(outcomes);
   MatrixAccessor<int> outcomes_mat_access(*outcomes_mat);
 
-  //vector of vectors to store data realisations
-  std::vector<std::vector<int>> out_mat;
-  for(int i = 0; i < vars.size(); ++i){
-    out_mat.push_back(std::vector<int> (n_causal_types));
-  }
-
-  std::vector<std::string> in_dos = dos.names();
-
   for(int i = 0; i < dos.size(); ++i){
     // generate causal types and fill in dos
-    std::vector<std::vector<std::string>> ct = make_causal_types_c(nodal_types_collapsed);
-    std::string in_dos_i = in_dos[i];
-    int pos = std::find(nodes.begin(), nodes.end(), in_dos_i) - nodes.begin();
-    int dos_i_int = dos[i];
+    List dos_i = dos[i];
+    std::vector<std::string> in_dos_i = dos_i.names();
 
-    if(dos_i_int >= 0){
-      std::vector<std::string> dos_i;
-      dos_i.push_back(std::to_string(dos_i_int));
-      ct[pos] = rep_times(dos_i, n_causal_types);
-    } else {
-      in_dos_i = "";
+    if(dos_i.size() == 1){
+      int dos_i_val = dos_i[0];
+      if(dos_i_val < 0){
+        in_dos_i[0] = "";
+      }
     }
 
     std::vector<std::string> work_through;
     for(int n = 0; n < endogenous_nodes.size(); ++n){
-      if(endogenous_nodes[n] != in_dos_i){
-        work_through.push_back(endogenous_nodes[n]);
+      for(int o = 0; o < in_dos_i.size(); ++o){
+        if(endogenous_nodes[n] != in_dos_i[o]){
+          work_through.push_back(endogenous_nodes[n]);
+        }
       }
     }
+
+
+    for(int j = 0; j < n_causal_types; ++j){
+
+      for(int k = 0; k < work_through.size(); ++k){
+        std::string var = work_through[k];
+        int pos = std::find(nodes.begin(), nodes.end(), var) - nodes.begin();
+      }
+
+    }
+
 
     // loop over each endogenous node
     for(int j = 0; j < work_through.size(); ++j){
       std::string var = work_through[j];
       int pos = std::find(nodes.begin(), nodes.end(), var) - nodes.begin();
-      //get causal type realizations for endogenous node
-      std::vector<std::string> child_type = ct[pos];
       //get parents of endogenous node
       std::vector<std::string> parents = parents_list[var];
       //get nodal types of endogenous node
@@ -453,13 +504,19 @@ void query_to_ct_c(SEXP outcomes,
       std::vector<std::string> nodal_type_var_col = nodal_types_colnames[var];
 
       //loop over causal types
-      for(int k = 0; k < child_type.size(); ++k){
+      for(int k = 0; k < n_causal_types; ++k){
         //get causal type
-        std::string type = child_type[k];
+        int type_int = ct[pos][k];
+        std::string type = unique_nodal_types[type_int];
         //generate empty vector for parent realization
         std::string parents_val;
         //get parent realization
         for(int l = 0; l < parents.size(); ++l){
+          int parent_do = std::find(in_dos_i.begin(),in_dos_i.end(),parents[l]) - in_dos_i.begin();
+
+          if(parent_do != in_dos_i.size()){
+            std::string =
+          }
           int pos_parent = std::find(nodes.begin(), nodes.end(), parents[l]) - nodes.begin();
           parents_val.append(ct[pos_parent][k]);
         }

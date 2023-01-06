@@ -43,6 +43,16 @@ get_type_prob_multiple_cstd <- function(params, P, nrow, ncol, nrow_p, ncol_p) {
     .Call(`_CQBigModel_get_type_prob_multiple_cstd`, params, P, nrow, ncol, nrow_p, ncol_p)
 }
 
+#' Determines the number of times each nodes' vector of nodal types is repeated to generate the pattern of causal types.
+#' Combining this information with the position of a causal type allows us to determine the nodal types used in the construction
+#' of the given causal type.
+#'
+#' @param nodal_types a List of nodal types
+#' @return an integer vector of repetitions for each nodes' nodal type vector
+get_causal_type_pattern <- function(nodal_types) {
+    .Call(`_CQBigModel_get_causal_type_pattern`, nodal_types)
+}
+
 #' cpp implementation of realise_outcomes. Realise outcomes for all causal types.
 #' Calculated by sequentially calculating endogenous nodes. If a do operator is applied to
 #' any node then it takes the given value and all its descendants are generated accordingly.
@@ -57,8 +67,8 @@ get_type_prob_multiple_cstd <- function(params, P, nrow, ncol, nrow_p, ncol_p) {
 #' @param nodal_types_colnames List of column names of matrices in nodal_types
 #' @param nodal_types_collapsed List of collapsed nodal types
 #' @param n_causal_types int specifying number of causal types
-realise_outcomes_c <- function(outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types) {
-    invisible(.Call(`_CQBigModel_realise_outcomes_c`, outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types))
+realise_outcomes_c <- function(outcomes, causal_types, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, unique_nodal_types, n_causal_types) {
+    invisible(.Call(`_CQBigModel_realise_outcomes_c`, outcomes, causal_types, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, unique_nodal_types, n_causal_types))
 }
 
 #' cpp implementation of realise_outcomes for map_query_to_causal_types. Dos are evaluated
@@ -74,7 +84,7 @@ realise_outcomes_c <- function(outcomes, nodes, endogenous_nodes, dos, parents_l
 #' @param n_causal_types int specifying number of causal types
 #' @param vars string vector with names of variables dos are attached to
 #' @param List of pairwise operations query is made up of
-query_to_ct_c <- function(outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars, query_operations, var_order) {
-    invisible(.Call(`_CQBigModel_query_to_ct_c`, outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, n_causal_types, vars, query_operations, var_order))
+query_to_ct_c <- function(outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, unique_nodal_types, n_causal_types, vars, query_operations, var_order) {
+    invisible(.Call(`_CQBigModel_query_to_ct_c`, outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, unique_nodal_types, n_causal_types, vars, query_operations, var_order))
 }
 

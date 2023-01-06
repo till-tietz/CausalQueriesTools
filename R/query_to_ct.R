@@ -6,6 +6,7 @@
 #' @param nodes Character String of nodes in model
 #' @return A List containing, the reconstructed query, a list of do-operations, a vector of node names attached to the dos, a vector of newly constructed variables
 #' @keywords internal
+#' @export
 
 deparse_query <- function(query, join_by, nodes){
 
@@ -63,17 +64,19 @@ deparse_query <- function(query, join_by, nodes){
   })
 
   node_pos <- rev(node_pos[!drop])
-  dos <- list()
+  dos <- vector(mode = "list", length = length(node_pos))
   vars <- c()
   var_order <- c()
 
   for(i in 1:length(node_pos)){
 
     if(w_query[node_pos[i] + 1] != "["){
-      do <- paste("list(",w_query[node_pos[i]]," = -1 )", sep = "") %>%
+      do <- list()
+      do_j <- paste("list(",w_query[node_pos[i]]," = -1 )", sep = "") %>%
         parse(text = .) %>%
         eval(.,envir = c())
-      dos <- c(dos,do)
+      do <- c(do,do_j)
+      dos[[i]] <- do
       vars <- c(vars,w_query[node_pos[i]])
       vname <- paste("var",i,sep="")
       var_order <- c(var_order,vname)
@@ -93,17 +96,18 @@ deparse_query <- function(query, join_by, nodes){
         stop("\nquery does not return any causal types.\nNote that expressions of the form `Y[]==1` are not allowed for mapping queries to causal types.\nSpecify queries as (e.g.) `Y==1` or `Y[X=0] == 1` instead.")
       }
 
+      do <- list()
       for (j in 1:length(sub_query)) {
-        do <- paste("list(",sub_query[j],")", sep = "") %>%
+        do_j <- paste("list(",sub_query[j],")", sep = "") %>%
           parse(text = .) %>%
           eval(.,envir = c())
 
-        if (!names(do) %in% nodes){
-          stop(paste("Variable", names(do), "is not part of the model."))
+        if (!names(do_j) %in% nodes){
+          stop(paste("Variable", names(do_j), "is not part of the model."))
         }
-
-        dos <- c(dos,do)
+        do <- c(do,do_j)
       }
+      dos[[i]] <- do
       vars <- c(vars,w_query[node_pos[i]])
       vname <- paste("var",i,sep="")
       var_order <- c(var_order,vname)
@@ -119,13 +123,14 @@ deparse_query <- function(query, join_by, nodes){
     string <- string[string != "&"]
   })
 
-
+  dos[sapply(dos, is.null)] <- NULL
   return(list(w_query = w_query,
               dos = rev(dos),
               vars = rev(vars),
               w_query_order = rev(var_order))
   )
 }
+
 
 #' map query to causal types. Finds causal types associated with query,
 #' writes them to a bigmatrix and returns a pointer to the assocaited
@@ -136,6 +141,7 @@ deparse_query <- function(query, join_by, nodes){
 #' @param join_by Logical operator. Used to connect causal statements: \emph{AND} ('&') or \emph{OR} ('|').
 #' @param file_name file name for the file backed bigmatrix object
 #' @return pointer to a bigmatrix memory location
+#' @export
 
 
 #map query to causal types
@@ -152,10 +158,24 @@ query_to_ct <- function(model,query,join_by = "|", file_name = ""){
   #get endogenous nodes
   endog <- attributes(model)$nonroot_nodes
 
+  ct_mat <- bigmemory::filebacked.big.matrix(
+    nrow = nct,
+    ncol = length(model$nodes),
+    type = "integer",
+    init = 0,
+
+  )
+
+  ct <- make_causal_types_c(
+    ct_mat_address = ,
+    nodal_types = ,
+    unique_nodal_types =
+  )
+
   #make bigmatrix
   query_mat <- bigmemory::filebacked.big.matrix(
-      nrow = n_nt,
-      ncol = length(qer$vars),
+      nrow = nct,
+      ncol = length(query_deparsed$vars),
       type = "integer",
       init = 0,
       backingfile = paste(file_name, ".bin", sep = ""),
@@ -164,7 +184,7 @@ query_to_ct <- function(model,query,join_by = "|", file_name = ""){
       dimnames = c(NULL, NULL)
     )
 
-  CQBigModel::query_to_ct_c(
+  query_to_ct_c(
     outcomes = query_mat@address,
     nodes = model$nodes,
     endogenous_nodes = endog,

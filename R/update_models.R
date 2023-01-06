@@ -1,0 +1,230 @@
+# Define submodel to create smaller DAGs from the main DAG
+submodel <- function(model,
+                     child,
+                     add_causal_types = FALSE) {
+
+  # check for confounding
+  if (grepl("<->", model$statement)) {
+    stop("submodel function not appropriate for models with confounding")
+  }
+
+  # create dag
+  dag <- dplyr::filter(model$dag, children %in% child)
+
+  nodes <- model$nodes[model$nodes %in% unlist(dag)]
+
+  statement <- paste0(dag$parent, " -> ", dag$children) %>%
+    paste0(collapse = "; ")
+
+  # check for nodal type restrictions from helpers
+  if (!is.null(model$model_type)) {
+
+    # make simple submodel
+    if (model$model_type == "simple") {
+      m <- make_simple_model(statement)
+    }
+
+    # add interactions to submodel
+    if (model$model_type == "simple_interacted") {
+      interactions <- model$interactions[sapply(model$interactions, function(int) {
+        int[length(int)] == child
+      })]
+
+      m <- make_simple_model(statement)
+      m$dag <- m$dag[match(dag$parent, m$dag$parent),]
+
+      if(length(interactions) > 0){
+        m <- interact_model(m, interactions = interactions)
+      }
+    }
+    # submodel without helper nodal type restrictions
+  } else {
+
+    m <- CausalQueires::make_model(statement)
+
+  }
+
+  # set restrictions
+  restrictions <- attr(model, "restrictions")
+
+  if (!is.null(restrictions)) {
+    restrictions <-
+      restrictions[names(restrictions) %in% unlist(dag$children)]
+    m <- CausalQueries::set_restrictions(model = m, labels = restrictions)
+
+  }
+
+  return(m)
+
+}
+
+
+
+# Split function to run submodel across all children
+split <- function(model,
+                  add_causal_types = FALSE,
+                  trivial = FALSE) {
+
+  # make submodel for each child
+  child <- c(unique(model$dag$children))
+  submodels <- vector(mode = "list", length = length(child))
+  for (i in 1:length(child)) {
+    submodels[[i]] <-
+      submodel(model, child[[i]], add_causal_types = add_causal_types)
+  }
+
+  # if trivial add single node submodels for exogenous nodes
+  if(trivial) {
+    exogenous <- attr(model, "root_nodes")
+    exogenous <- lapply(exogenous, function(i) {
+      CausalQueries::make_model(i)
+    })
+    submodels <- do.call(c, list(submodels, exogenous))
+  }
+
+  return(submodels)
+}
+
+
+
+
+# Update_stitch function to update and combine submodels
+update_stitch  <- function(model,
+                           data,
+                           chains = 4L,
+                           parallel = TRUE,
+                           verbose = FALSE,
+                           trivial = FALSE) {
+  # make submodels
+  submodels <- split(model, trivial = trivial)
+
+  if (!verbose) {
+    refresh <- 0
+  } else {
+    refresh <- 200
+  }
+
+  # if separate data is passed for each submodel as list order data according to
+  # order of submodels
+  if(!is.data.frame(data)){
+
+    data <- lapply(data, function(i){
+      dplyr::select(i,-(colnames(i)[!colnames(i) %in% model$nodes]))
+    })
+
+    data <- lapply(submodels, function(i){
+      nodes_i <- i$nodes
+      which_data <- sapply(data, function(j){
+        all(nodes_i %in% colnames(j))
+      })
+      data[which_data][[1]]
+    })
+
+  }
+
+  # parallel updating
+  if (parallel) {
+    # set nested core architecture
+    cores <- parallel::detectCores()
+    message("setting up parallel processing architecture")
+    future::plan(list(
+      future::tweak(future::multisession, workers = floor(cores / (chains + 1L))),
+      future::tweak(future::multisession, workers = chains)
+    ))
+
+    # updating with separate data for each submodel
+    if(!is.data.frame(data)){
+      message("updating models")
+      px <- 1:length(submodels)
+      progressr::with_progress({
+        p <- progressr::progressor(along = px)
+        submodels_res <-
+          future.apply::future_lapply(1:length(submodels), function(m) {
+            p(sprintf("x=%g", px))
+            CausalQueries::update_model(
+              model = submodels[[m]],
+              data = data[[m]],
+              chains = chains,
+              cores = chains,
+              refresh = refresh
+            )$posterior_distribution
+          })
+      })
+      # updating with single data set
+    } else {
+      message("updating models")
+      px <- 1:length(submodels)
+      progressr::with_progress({
+        p <- progressr::progressor(along = px)
+        submodels_res <-
+          future.apply::future_lapply(submodels, function(m) {
+            p(sprintf("x=%g", px))
+            CausalQueries::update_model(
+              model = m,
+              data = data,
+              chains = chains,
+              cores = chains,
+              refresh = refresh
+            )$posterior_distribution
+          })
+      })
+    }
+    # sequential updating
+  } else {
+    # updating with separate data for each submodel
+    if(!is.data.frame(data)){
+      message("updating models")
+      submodels_res <-
+        vector(mode = "list", length = length(submodels))
+      for (m in 1:length(submodels)) {
+        submodels_res[[m]] <-
+          CausalQueries::update_model(
+            model = submodels[[m]],
+            data = data[[m]],
+            chains = chains,
+            cores = chains,
+            refresh = refresh
+          )$posterior_distribution
+      }
+      # updating with single data set
+    } else {
+      message("updating models")
+      submodels_res <-
+        vector(mode = "list", length = length(submodels))
+      for (m in 1:length(submodels)) {
+        submodels_res[[m]] <-
+          CausalQueries::update_model(
+            model = submodels[[m]],
+            data = data,
+            chains = chains,
+            cores = chains,
+            refresh = refresh
+          )$posterior_distribution
+      }
+    }
+  }
+
+  # if trivial keep posteriors of single node models for parameters of exogenous nodes
+  if (trivial) {
+    n_exo <- length(attr(model, "root_nodes"))
+    exo <- tail(submodels_res, n_exo)
+    param_exo <- unique(unlist(lapply(exo, function(i) i$parameters_df$param_names)))
+
+    post_dist_endo <- do.call(cbind, head(submodels_res, length(submodels_res) - n_exo))
+    post_dist_endo <- post_dist_endo[, !colnames(post_dist_endo) %in% param_exo, drop = FALSE]
+    post_dist_exo <- do.call(cbind, tail(submodels_res, n_exo))
+
+    post_dist <- cbind(post_dist_endo, post_dist_exo)
+  } else {
+    post_dist <-  do.call(cbind, submodels_res)
+  }
+
+  # Find the column numbers to select from the posteriors
+  j <- match(model$parameters_df$param_names, colnames(post_dist))
+
+  # Add the posteriors to the model
+  model$posterior_distribution <- post_dist[, j]
+
+  # Return the model with posteriors
+  return(model)
+}
