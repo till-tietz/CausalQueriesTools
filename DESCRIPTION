@@ -15,6 +15,7 @@ Imports:
 LinkingTo: 
   Rcpp, 
   RcppArmadillo,
+  RcppProgress,
   bigmemory,
   BH
 RoxygenNote: 7.2.2

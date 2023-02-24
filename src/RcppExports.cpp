@@ -65,17 +65,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// get_causal_type_pattern
-std::vector<int> get_causal_type_pattern(List nodal_types);
-RcppExport SEXP _CQBigModel_get_causal_type_pattern(SEXP nodal_typesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< List >::type nodal_types(nodal_typesSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_causal_type_pattern(nodal_types));
-    return rcpp_result_gen;
-END_RCPP
-}
 // realise_outcomes_c
 void realise_outcomes_c(SEXP outcomes, SEXP causal_types, std::vector<std::string> nodes, std::vector<std::string> endogenous_nodes, List dos, List parents_list, List nodal_types, List nodal_types_colnames, List nodal_types_collapsed, std::vector<std::string> unique_nodal_types, int n_causal_types);
 RcppExport SEXP _CQBigModel_realise_outcomes_c(SEXP outcomesSEXP, SEXP causal_typesSEXP, SEXP nodesSEXP, SEXP endogenous_nodesSEXP, SEXP dosSEXP, SEXP parents_listSEXP, SEXP nodal_typesSEXP, SEXP nodal_types_colnamesSEXP, SEXP nodal_types_collapsedSEXP, SEXP unique_nodal_typesSEXP, SEXP n_causal_typesSEXP) {
@@ -118,15 +107,68 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// query_to_ct_c
+void query_to_ct_c(std::vector<std::string> nodes, std::vector<std::string> pars, List nodal_types, int n_causal_types, int n_cores);
+RcppExport SEXP _CQBigModel_query_to_ct_c(SEXP nodesSEXP, SEXP parsSEXP, SEXP nodal_typesSEXP, SEXP n_causal_typesSEXP, SEXP n_coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type nodes(nodesSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type pars(parsSEXP);
+    Rcpp::traits::input_parameter< List >::type nodal_types(nodal_typesSEXP);
+    Rcpp::traits::input_parameter< int >::type n_causal_types(n_causal_typesSEXP);
+    Rcpp::traits::input_parameter< int >::type n_cores(n_coresSEXP);
+    query_to_ct_c(nodes, pars, nodal_types, n_causal_types, n_cores);
+    return R_NilValue;
+END_RCPP
+}
+// add_par
+int add_par(int n, int ncores);
+RcppExport SEXP _CQBigModel_add_par(SEXP nSEXP, SEXP ncoresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type ncores(ncoresSEXP);
+    rcpp_result_gen = Rcpp::wrap(add_par(n, ncores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// add_seq
+int add_seq(int n);
+RcppExport SEXP _CQBigModel_add_seq(SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(add_seq(n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// write_vec_par
+std::vector<int> write_vec_par(std::vector<int> x, int y, int ncores);
+RcppExport SEXP _CQBigModel_write_vec_par(SEXP xSEXP, SEXP ySEXP, SEXP ncoresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<int> >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type ncores(ncoresSEXP);
+    rcpp_result_gen = Rcpp::wrap(write_vec_par(x, y, ncores));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_CQBigModel_get_type_prob_c", (DL_FUNC) &_CQBigModel_get_type_prob_c, 2},
     {"_CQBigModel_get_type_prob_multiple_c", (DL_FUNC) &_CQBigModel_get_type_prob_multiple_c, 2},
     {"_CQBigModel_get_type_prob_cstd", (DL_FUNC) &_CQBigModel_get_type_prob_cstd, 4},
     {"_CQBigModel_get_type_prob_multiple_cstd", (DL_FUNC) &_CQBigModel_get_type_prob_multiple_cstd, 6},
-    {"_CQBigModel_get_causal_type_pattern", (DL_FUNC) &_CQBigModel_get_causal_type_pattern, 1},
     {"_CQBigModel_realise_outcomes_c", (DL_FUNC) &_CQBigModel_realise_outcomes_c, 11},
     {"_CQBigModel_query_to_ct_c", (DL_FUNC) &_CQBigModel_query_to_ct_c, 13},
+    {"_CQBigModel_query_to_ct_c", (DL_FUNC) &_CQBigModel_query_to_ct_c, 5},
+    {"_CQBigModel_add_par", (DL_FUNC) &_CQBigModel_add_par, 2},
+    {"_CQBigModel_add_seq", (DL_FUNC) &_CQBigModel_add_seq, 1},
+    {"_CQBigModel_write_vec_par", (DL_FUNC) &_CQBigModel_write_vec_par, 3},
     {NULL, NULL, 0}
 };
 
