@@ -8,7 +8,6 @@
 // [[Rcpp::depends(RcppProgress)]]
 #include <Rcpp.h>
 
-// [[Rcpp::export]]
 int add_par(int n, int ncores) {
   int res = 0;
   #pragma omp parallel num_threads(ncores) reduction(+: res)
@@ -23,7 +22,6 @@ int add_par(int n, int ncores) {
 }
 
 
-// [[Rcpp::export]]
 int add_seq(int n){
   int res = 0;
 
@@ -41,7 +39,6 @@ int add_ints(int num1, int num2) {
 }
 
 
-// [[Rcpp::export]]
 std::vector<int> write_vec_par(std::vector<int> x, int y, int ncores) {
   std::vector<int> res(x.size());
   // Copy elements of x into res

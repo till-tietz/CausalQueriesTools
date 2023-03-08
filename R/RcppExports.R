@@ -52,19 +52,3 @@ get_type_prob_multiple_cstd <- function(params, P, nrow, ncol, nrow_p, ncol_p) {
 #' return a map of node names and an integer of repetitions for each nodes' nodal type vector
 NULL
 
-query_to_ct_c <- function(nodes, pars, nodal_types, n_causal_types, n_cores) {
-    invisible(.Call(`_CQBigModel_query_to_ct_c`, nodes, pars, nodal_types, n_causal_types, n_cores))
-}
-
-add_par <- function(n, ncores) {
-    .Call(`_CQBigModel_add_par`, n, ncores)
-}
-
-add_seq <- function(n) {
-    .Call(`_CQBigModel_add_seq`, n)
-}
-
-write_vec_par <- function(x, y, ncores) {
-    .Call(`_CQBigModel_write_vec_par`, x, y, ncores)
-}
-

@@ -3,3 +3,5 @@ importFrom(Rcpp, evalCpp)
 useDynLib(CQBigModel, .registration = TRUE)
 
 importFrom(magrittr,"%>%")
+importFrom("methods", "is")
+importFrom("utils", "head", "tail")

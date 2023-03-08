@@ -55,7 +55,7 @@ submodel <- function(model,
     # submodel without helper nodal type restrictions
   } else {
 
-    m <- CausalQueires::make_model(statement)
+    m <- CausalQueries::make_model(statement)
 
   }
 

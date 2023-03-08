@@ -7,7 +7,6 @@
 using namespace Rcpp;
 
 // [[Rcpp::plugins(openmp)]]
-// [[Rcpp::export]]
 void query_to_ct_c(std::vector<std::string> nodes,
                    std::vector<std::string> pars, //paste0(model$parameters_df$node, model$parameters_df$nodal_type) >> ensures correct handling under confounding
                    List nodal_types,

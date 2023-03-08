@@ -12,10 +12,12 @@ Imports:
   Rcpp (>= 1.0.9),
   CausalQueries (>= 0.1.0),
   magrittr (>= 2.0.3),
-  dplyr (>= 1.1.0),
+  dplyr (>= 1.0.10),
   future (>= 1.32.0),
   future.apply (>= 1.10.0),
-  progressr (>= 0.13.0)
+  progressr (>= 0.13.0),
+  stringr (>= 1.4.1),
+  methods
 LinkingTo: 
   Rcpp, 
   RcppArmadillo
