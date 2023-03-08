@@ -52,41 +52,6 @@ get_type_prob_multiple_cstd <- function(params, P, nrow, ncol, nrow_p, ncol_p) {
 #' return a map of node names and an integer of repetitions for each nodes' nodal type vector
 NULL
 
-#' cpp implementation of realise_outcomes. Realise outcomes for all causal types.
-#' Calculated by sequentially calculating endogenous nodes. If a do operator is applied to
-#' any node then it takes the given value and all its descendants are generated accordingly.
-#' Output is written to a bigmatrix.
-#'
-#' @param outcomes memory address of a bigmatrix object
-#' @param nodes string vector of nodes names
-#' @param endogenous_nodes string vector of endogenous nodes
-#' @param dos List of do operations
-#' @param parents_list List of parent nodes for each node
-#' @param nodal_types List of integer matrices with uncollapsed nodal types
-#' @param nodal_types_colnames List of column names of matrices in nodal_types
-#' @param nodal_types_collapsed List of collapsed nodal types
-#' @param n_causal_types int specifying number of causal types
-realise_outcomes_c <- function(outcomes, causal_types, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, unique_nodal_types, n_causal_types) {
-    invisible(.Call(`_CQBigModel_realise_outcomes_c`, outcomes, causal_types, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, unique_nodal_types, n_causal_types))
-}
-
-#' cpp implementation of realise_outcomes for map_query_to_causal_types. Dos are evaluated
-#' and the realised outcomes for the variable they are attached to is written to a bigmatrix.
-#'
-#' @param nodes string vector of nodes names
-#' @param endogenous_nodes string vector of endogenous nodes
-#' @param dos List of do operations
-#' @param parents_list List of parent nodes for each node
-#' @param nodal_types List of integer matrices with uncollapsed nodal types
-#' @param nodal_types_colnames List of column names of matrices in nodal_types
-#' @param nodal_types_collapsed List of collapsed nodal types
-#' @param n_causal_types int specifying number of causal types
-#' @param vars string vector with names of variables dos are attached to
-#' @param List of pairwise operations query is made up of
-query_to_ct_c <- function(outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, unique_nodal_types, n_causal_types, vars, query_operations, var_order) {
-    invisible(.Call(`_CQBigModel_query_to_ct_c`, outcomes, nodes, endogenous_nodes, dos, parents_list, nodal_types, nodal_types_colnames, nodal_types_collapsed, unique_nodal_types, n_causal_types, vars, query_operations, var_order))
-}
-
 query_to_ct_c <- function(nodes, pars, nodal_types, n_causal_types, n_cores) {
     invisible(.Call(`_CQBigModel_query_to_ct_c`, nodes, pars, nodal_types, n_causal_types, n_cores))
 }

@@ -2,6 +2,8 @@
 #include <numeric>
 #include <math.h>
 #include <unistd.h>
+#include <omp.h>
+#include <vector>
 using namespace Rcpp;
 
 // [[Rcpp::plugins(openmp)]]
@@ -38,7 +40,7 @@ void query_to_ct_c(std::vector<std::string> nodes,
     #pragma omp for
   #endif
 
-  for(int i = 0; i < n_causal_types; i++){
+  for(int i = 0; i < n_causal_types; ++i){
 
     //generate causal type components ------------------------------------------
     //component nodal types of causal type i
@@ -71,4 +73,5 @@ void query_to_ct_c(std::vector<std::string> nodes,
     }
 
   }
+  return;
 }

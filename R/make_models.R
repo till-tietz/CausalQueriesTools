@@ -3,6 +3,13 @@
 #' @return a character vector of nodal types
 #' @keywords internal
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' simple_nodes(n = 5)
+#'
+#' }
 
 simple_nodes <- function(n = 5) {
   N <- 2^n
@@ -19,6 +26,13 @@ simple_nodes <- function(n = 5) {
 #' @param statement string describing causal model
 #' @return An object of class \code{causal_model}.
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' model <- make_simple_model("X -> M1; X -> M2; M1 -> Y; M2 -> Y")
+#'
+#' }
 
 make_simple_model <- function(statement){
 
@@ -51,6 +65,14 @@ make_simple_model <- function(statement){
 #' @param interaction_operation character vector of logical operations to create interactions with
 #' @return An object of class \code{causal_model} with the specified interactions
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' model <- make_simple_model("X -> M1; X -> M2; M1 -> Y; M2 -> Y") |>
+#'             interact_model(interactions = list(c("M1","M2","Y")))
+#'
+#' }
 
 interact_model <- function(model,
                            interactions,

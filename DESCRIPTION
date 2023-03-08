@@ -10,12 +10,9 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
   Rcpp (>= 1.0.9),
-  bigmemory,
-  BH
+  magrittr (>= 2.0.3),
+  dplyr (>= 1.1.0)
 LinkingTo: 
   Rcpp, 
-  RcppArmadillo,
-  RcppProgress,
-  bigmemory,
-  BH
+  RcppArmadillo
 RoxygenNote: 7.2.2

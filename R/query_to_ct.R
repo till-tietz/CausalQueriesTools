@@ -132,75 +132,7 @@ deparse_query <- function(query, join_by, nodes){
 }
 
 
-#' map query to causal types. Finds causal types associated with query,
-#' writes them to a bigmatrix and returns a pointer to the assocaited
-#' memory address.
-#'
-#' @param model a causal model
-#' @param query string specifying query
-#' @param join_by Logical operator. Used to connect causal statements: \emph{AND} ('&') or \emph{OR} ('|').
-#' @param file_name file name for the file backed bigmatrix object
-#' @return pointer to a bigmatrix memory location
-#' @export
 
-
-#map query to causal types
-query_to_ct <- function(model,query,join_by = "|", file_name = ""){
-
-  #deparse query
-  query_deparsed <- deparse_query(query = query, join_by = join_by, nodes = model$nodes)
-  #get number of causal types
-  nct <- sapply(model$nodal_types,length) |>
-    prod()
-  #get uncollapsed nodal types
-  nt_unc <- model$nodal_types |>
-    uncollapse_nt()
-  #get endogenous nodes
-  endog <- attributes(model)$nonroot_nodes
-
-  ct_mat <- bigmemory::filebacked.big.matrix(
-    nrow = nct,
-    ncol = length(model$nodes),
-    type = "integer",
-    init = 0,
-
-  )
-
-  ct <- make_causal_types_c(
-    ct_mat_address = ,
-    nodal_types = ,
-    unique_nodal_types =
-  )
-
-  #make bigmatrix
-  query_mat <- bigmemory::filebacked.big.matrix(
-      nrow = nct,
-      ncol = length(query_deparsed$vars),
-      type = "integer",
-      init = 0,
-      backingfile = paste(file_name, ".bin", sep = ""),
-      backingpath = ".",
-      descriptorfile = paste(file_name, ".desc", sep = ""),
-      dimnames = c(NULL, NULL)
-    )
-
-  query_to_ct_c(
-    outcomes = query_mat@address,
-    nodes = model$nodes,
-    endogenous_nodes = endog,
-    dos = query_deparsed$dos,
-    parents_list = CausalQueries::get_parents(model),
-    nodal_types = nt_unc,
-    nodal_types_colnames = lapply(nt_unc, colnames),
-    nodal_types_collapsed = model$nodal_types,
-    n_causal_types = nct,
-    vars = query_deparsed$vars,
-    query_operations = query_deparsed$w_query,
-    var_order = query_deparsed$w_query_order
-  )
-
-  return(query_mat)
-}
 
 
 
