@@ -10,8 +10,12 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
   Rcpp (>= 1.0.9),
+  CausalQueries (>= 0.1.0),
   magrittr (>= 2.0.3),
-  dplyr (>= 1.1.0)
+  dplyr (>= 1.1.0),
+  future (>= 1.32.0),
+  future.apply (>= 1.10.0),
+  progressr (>= 0.13.0)
 LinkingTo: 
   Rcpp, 
   RcppArmadillo
