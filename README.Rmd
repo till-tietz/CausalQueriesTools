@@ -86,7 +86,7 @@ model <- update_stitch(model, data, chains = 2, parallel = TRUE)
 ### Motivation 
 Complex theories beget complex models; posing substantial computational challenges to the practical application of the `CausalQueries` framework to theories of complexity often favored by practitioners. Even relatively harmless seeming DAGs may begin to test the limits of memory and processing power available on modern hardware once encoded as causal models with standard `CausalQueries`. Consider, by way of illustration, the model described by the following DAG. It alone has ~4 Billion nodal- and ~8796 Billion causal-types, as well as a myriad of further parameters attached to both.     
 
-```{r, echo = FALSE, fig.width=6, fig.height=6, fig.align='center',fig.width=7, fig.height=8,out.height='90%', out.width='90%'}
+```{r, echo = FALSE, fig.align='center',fig.width=7, fig.height=4,out.height='90%', out.width='90%'}
 model <- CausalQueries::make_model("X -> M1; X -> M2; X -> M3; X -> M4; X -> M5
                                     M1 -> Y; M2 -> Y; M3 -> Y; M4 -> Y; M5 -> Y",
                                     add_causal_types = FALSE,
@@ -113,7 +113,7 @@ Encoding large causal models with `CausalQueries` requires a restriction of the 
 `CausalQueriesTools` utilizes graph splitting and nested parallel processing to make updating large causal modles more efficient. The `update_stitch()` functionality leverages the local markov property to factor DAGs into more efficiently updatable sub-DAGs. Given the following causally ordered DAG $X_1 \rightarrow X_2 \rightarrow X_3 \rightarrow X_4$, by local markov. $$X_{i+1} \perp (X_1,...,X_{i-1}) | X_i$$ More generally since any probability distribution $P(X)$ can be written as $$P(X) = \prod_{i = 1}^n P(X_{\pi i} | X_{\pi 1},...,X_{\pi i-1})$$ where $\pi$ is a permutation of indices, we can factorize a probability distribution $P(X)$ over a DAG. $D$ as $$P(X) = \prod_{i = 1}^n P(X_i | PARENT_i)$$ Every node is independent of its non-descendants given its parents.
 The following DAG can thus be factorized like so:  
 
-```{r, echo = FALSE, fig.align='center', fig.width=7, fig.height=8,out.height='50%', out.width='90%'}
+```{r, echo = FALSE, fig.align='center', fig.width=7, fig.height=4,out.height='50%', out.width='90%'}
 model <- CausalQueries::make_model("X -> M1; X -> M2; M1 -> Y; M2 -> Y; Y -> Z")
 CausalQueries:::plot_dag(model,
                          x_coord = c(1,2,2,3,4),
@@ -124,7 +124,7 @@ CausalQueries:::plot_dag(model,
 $P(X)=P(X)P(M_1|X)P(M_2|X)P(Y|M_1,M_2)P(Z|Y)$. This means we can split it into the following sub-DAGs.
 
 
-```{r, echo = FALSE, fig.width=7, fig.height=8, fig.align='center', message=FALSE, warning= FALSE,out.height='50%', out.width='90%', fig.asp=0.8}
+```{r, echo = FALSE, fig.width=7, fig.height=4, fig.align='center', message=FALSE, warning= FALSE,out.height='50%', out.width='90%', fig.asp=0.8}
 s1 <- CausalQueries::make_model("X -> M1") |>
   CausalQueries:::plot_dag(x_coord = c(1,2),
                            y_coord = c(1,1))+
@@ -178,7 +178,7 @@ data.frame(
 \
 To illustrate the above points on the performance gains derived through model splitting, we benchmark `update_model()` and `update_stitch()` on updating models of increasing size with data consisting of 1000 observations. Models are simple causal chains with 2 to 7 nodes. We update each model 10 times using each function and present average run-times. We run 4 markov chains in parallel for both `update_model()` and `update_stitch()`, with `update_stitch()` further parallelising across sub-models. 
 
-```{r, echo = FALSE, fig.width=7, fig.height=6, fig.align='center', out.height='50%', out.width='90%'}
+```{r, echo = FALSE, fig.width=7, fig.height=4, fig.align='center', out.height='50%', out.width='90%'}
 model1 <- CausalQueries::make_model("X1 -> X2")
 model2 <- CausalQueries::make_model("X1 -> X2 -> X3 -> X4")
 ggpubr::ggarrange(
