@@ -8,6 +8,52 @@
 #' @keywords internal
 #' @export
 
+
+deparse_query <- function(query, join_by, nodes){
+
+  if (length(query) > 1L){
+    stop("Please specify a query of length 1L.")
+  }
+
+  if (grepl(".", query, fixed = TRUE)){
+    query <- CausalQueries::expand_wildcard(query, join_by = join_by)
+  }
+
+  #split query into individual characters
+  w_query <- gsub(" ", "", query) |>
+    strsplit("") |>
+    unlist()
+
+  #detect double character operators (==,>=,>=) and re-join
+  double_operator <- grep(">|<|=",w_query)
+  double_operator_id <- which(diff(double_operator) == 1)
+
+  if(length(double_operator_id) > 0){
+    for(i in double_operator_id){
+      w_query[double_operator[i]] <- paste(w_query[double_operator[i]],w_query[double_operator[i]+1], sep = "")
+    }
+    w_query <- w_query[-(double_operator[double_operator_id]+1)]
+  }
+
+  #re-join variable names (find non variable name symbols, pad with white space,
+  #collapse vector into string, split at white space)
+  sym <- paste(c("\\[","\\]","=","==",">=",">","<","<=",
+                 "\\&","\\|",",","\\+","\\-"),collapse = "|")
+  sym_id <- grep(sym,w_query)
+
+  w_query[sym_id] <- paste0(" ",w_query[sym_id]," ")
+  w_query <- paste(w_query,collapse = "")|>
+    strsplit(" ")|>
+    unlist()
+  w_query <- w_query[w_query != ""]
+
+  #split query into two component sets
+  set_operation <- which(head(w_query, -1) == "]" & tail(w_query, -1) %in% c("==",">=","<=",">","<","+","-")) + 1
+  w_query_1 <- w_query[1:(set_operation-1)]
+  w_query_2 <- w_query[(set_operation+1):length(w_query)]
+
+}
+
 deparse_query <- function(query, join_by, nodes){
 
   if (length(query) > 1L){

@@ -1,4 +1,4 @@
-Package: CQBigModel
+Package: CausalQueriesTools
 Type: Package
 Title: Functions To Handle Large Models in 'CausalQueries'
 Version: 0.0.0
