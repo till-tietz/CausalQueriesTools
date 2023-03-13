@@ -115,8 +115,8 @@ their component digits. In a monotonistic, non-interacted model
 described by the DAG $X \rightarrow Y; Z \rightarrow Y$, $Y$ has
 nodal-types $\{0000,0101,0011,1111\}$ with $\{0101,0011\}$ describing
 monotonic effects. Generating an interaction of $X$ and $Z$ on $Y$ can
-be accomplished by performing $0101 \& 0011 = 0001$ and
-$0101 | 0011 = 0111$, yielding the nodal-type set
+be accomplished by performing $0101 AND 0011 = 0001$ and
+$0101 OR 0011 = 0111$, yielding the nodal-type set
 $\{0000,0101,0011,0001,0111,1111\}$ on $Y$.
 
 <a name="updating"></a>
@@ -128,22 +128,22 @@ processing to make updating large causal modles more efficient. The
 `update_stitch()` functionality leverages the local markov property to
 factor DAGs into more efficiently updatable sub-DAGs. Given the
 following causally ordered DAG
-$X_1 \rightarrow X_2 \rightarrow X_3 \rightarrow X_4$, by local markov
-$X_{i+1} \perp (X_1,...,X_{i-1}) | X_i$. More generally since any
+$X_1 \rightarrow X_2 \rightarrow X_3 \rightarrow X_4$, by local markov.
+$$X_{i+1} \perp (X_1,...,X_{i-1}) | X_i$$ More generally since any
 probability distribution $P(X)$ can be written as
-$P(X) = \prod_{i = 1}^n P(X_{\pi i} | X_{\pi 1},...,X_{\pi i-1})$ where
-$\pi$ is a permutation of indices, we can factorize a probability
-distribution $P(X)$ over a DAG $D$ as
-$P(X) = \prod_{i = 1}^n P(X_i | PARENT_i)$. Every node is independent of
-its non-descendants given its parents. The following DAG can thus be
+$$P(X) = \prod_{i = 1}^n P(X_{\pi i} | X_{\pi 1},...,X_{\pi i-1})$$
+where $\pi$ is a permutation of indices, we can factorize a probability
+distribution $P(X)$ over a DAG. $D$ as
+$$P(X) = \prod_{i = 1}^n P(X_i | PARENT_i)$$ Every node is independent
+of its non-descendants given its parents. The following DAG can thus be
 factorized like so:
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="50%" height="55%" style="display: block; margin: auto;" />
 
 $P(X)=P(X)P(M_1|X)P(M_2|X)P(Y|M_1,M_2)P(Z|Y)$. This means we can split
 it into the following sub-DAGs.
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="50%" height="55%" style="display: block; margin: auto;" />
 
 Instead of updating a full model using standard `CausalQueries`
 `update_model()`, `update_stitch` can thus update its much simpler
