@@ -98,7 +98,7 @@ CausalQueries:::plot_dag(model,
   theme(title = element_blank())
 ```
 
-The simple fact that a binary node's set of nodal-types grows as a function of its number of parents $k$ by $2^{(2^k)}$ and that a model's set of causal-types is the product of its component nodal-types $$\prod_{i = 1}^{i = nodes} |types_i|$$, means that certain theories quickly become impossible to represent and operate on as causal models.  
+The simple fact that a binary node's set of nodal-types grows as a function of its number of parents $k$ by $2^{(2^k)}$ and that a model's set of causal-types is the product of its component nodal-types, $$\prod_{i = 1}^{i = nodes} |types_i|$$ means that certain theories quickly become impossible to represent and operate on as causal models.  
 Simply storing all nodal-types on $Y$ would require ~94 GB of memory. Storing a matrix of causal type distributions with a standard 4000 draws for this model would consume on the order of ~281472 TB of memory. Clearly special, optimized methods for model creating, updating and querying are needed for models of such size. 
 
 <a name="creating"></a>

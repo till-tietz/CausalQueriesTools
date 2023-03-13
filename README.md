@@ -86,8 +86,8 @@ parameters attached to both.
 
 The simple fact that a binary node’s set of nodal-types grows as a
 function of its number of parents $k$ by $2^{(2^k)}$ and that a model’s
-set of causal-types is the product of its component nodal-types
-$$\prod_{i = 1}^{i = nodes} |types_i|$$, means that certain theories
+set of causal-types is the product of its component nodal-types,
+$$\prod_{i = 1}^{i = nodes} |types_i|$$ means that certain theories
 quickly become impossible to represent and operate on as causal
 models.  
 Simply storing all nodal-types on $Y$ would require \~94 GB of memory.
