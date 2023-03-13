@@ -82,7 +82,7 @@ the model described by the following DAG. It alone has \~4 Billion
 nodal- and \~8796 Billion causal-types, as well as a myriad of further
 parameters attached to both.
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="50%" height="55%" style="display: block; margin: auto;" />
 
 The simple fact that a binary node’s set of nodal-types grows as a
 function of its number of parents $k$ by $2^{(2^k)}$ and that a model’s
