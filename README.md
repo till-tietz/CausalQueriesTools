@@ -82,7 +82,7 @@ the model described by the following DAG. It alone has \~4 Billion
 nodal- and \~8796 Billion causal-types, as well as a myriad of further
 parameters attached to both.
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="90%" height="90%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="90%" height="30%" style="display: block; margin: auto;" />
 
 The simple fact that a binary node’s set of nodal-types grows as a
 function of its number of parents $k$ by $2^{(2^k)}$ and that a model’s
@@ -138,12 +138,12 @@ $$P(X) = \prod_{i = 1}^n P(X_i | PARENT_i)$$ Every node is independent
 of its non-descendants given its parents. The following DAG can thus be
 factorized like so:
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="90%" height="50%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="90%" height="30%" style="display: block; margin: auto;" />
 
 $P(X)=P(X)P(M_1|X)P(M_2|X)P(Y|M_1,M_2)P(Z|Y)$. This means we can split
 it into the following sub-DAGs.
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="90%" height="50%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="90%" height="30%" style="display: block; margin: auto;" />
 
 Instead of updating a full model using standard `CausalQueries`
 `update_model()`, `update_stitch()` can thus update its much simpler
@@ -291,7 +291,7 @@ run-times. We run 4 markov chains in parallel for both `update_model()`
 and `update_stitch()`, with `update_stitch()` further parallelising
 across sub-models.
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="90%" height="50%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="90%" height="30%" style="display: block; margin: auto;" />
 
 <img src="man/figures/README-unnamed-chunk-9-1.png" width="90%" height="50%" style="display: block; margin: auto;" />
 
