@@ -9,8 +9,7 @@
 [![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](Redirect-URL)
 <!-- badges: end -->
 
-`CausalQueriesTools` is currently in development, very much
-experimental. It is intended to be a companion package to
+`CausalQueriesTools` is currently in development. It is intended to be a companion package to
 `CausalQueries`, implementing optimized core `CausalQueries` methods to
 make, update and query very large causal models.
 
@@ -75,33 +74,39 @@ model <- update_stitch(model, data, chains = 2, parallel = TRUE)
 Complex theories beget complex models; posing substantial computational
 challenges to the practical application of the `CausalQueries` framework
 to theories of complexity often favored by practitioners. Even
-relatively harmless seeming DAGs may begin to test the limits of memory
+relatively simple seeming DAGs may begin to test the limits of memory
 and processing power available on modern hardware once encoded as causal
-models with standard `CausalQueries`. Consider, by way of illustration,
+models with standard `CausalQueries`. The reason is that default models place no restrictions on the 
+types of causal relations that are allowed, conditional on the DAG, and the number of possible 
+causal relations increases very rapidly with the number of causes for a given variable because of the 
+many ways that causes can interact with each other. 
+
+Consider, by way of illustration,
 the model described by the following DAG. It alone has \~4 Billion
-nodal- and \~8796 Billion causal-types, as well as a myriad of further
+nodal- and \~8796 Billion "causal-types" (possible responses), as well as a myriad of further
 parameters attached to both.
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="90%" height="30%" style="display: block; margin: auto;" />
 
-The simple fact that a binary node’s set of nodal-types grows as a
-function of its number of parents $k$ by $2^{(2^k)}$ and that a model’s
+A binary node’s set of nodal-types grows as a
+function of its number of parents $k$ by $2^{(2^k)}$. A model’s
 set of causal-types is the product of its component nodal-types,
-$$\prod_{i = 1}^{i = nodes} |types_i|$$ means that certain theories
+$$\prod_{i = 1}^{i = nodes} |types_i|$$. These numbers grow so rapidly that theories
 quickly become impossible to represent and operate on as causal
 models.  
-Simply storing all nodal-types on $Y$ would require \~94 GB of memory.
+
+Simply storing all nodal-types on $Y$ for this model would require \~94 GB of memory.
 Storing a matrix of causal type distributions with a standard 4000 draws
 for this model would consume on the order of \~281472 TB of memory.
-Clearly special, optimized methods for model creating, updating and
-querying are needed for models of such size.
+
+In response users need either tools to simplify models and to work with large models, or both.
 
 <a name="creating"></a>
 
 ### Creating large causal models
 
-Encoding large causal models with `CausalQueries` requires a restriction
-of the nodal type space via monotonicity and no interaction assumptions.
+Consider first model simplification. One approach to simplification is 
+to restrict the nodal type space via monotonicity and no interaction assumptions.
 `CausalQueriesTools` provides the `make_simple_model()` function to this
 end. This effectively reverses the standard `CausalQueries` workflow of
 `make_model()` $\longrightarrow$ `restrict_model()` by creating
@@ -123,6 +128,7 @@ $\{0000,0101,0011,0001,0111,1111\}$ on $Y$.
 
 ### Updating large causal models
 
+Consider now the problem of updating large models. 
 `CausalQueriesTools` utilizes graph splitting and nested parallel
 processing to make updating large causal modles more efficient. The
 `update_stitch()` functionality leverages the local markov property to
