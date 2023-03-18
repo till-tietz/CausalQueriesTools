@@ -121,8 +121,8 @@ CausalQueries:::plot_dag(model,
   theme(title = element_blank())
 ```
 
-$P(X)=P(X)P(M_1|X)P(M_2|X)P(Y|M_1,M_2)P(Z|Y)$. This means we can split it into the following sub-DAGs.
-
+$$P(X)=P(X)P(M_1|X)P(M_2|X)P(Y|M_1,M_2)P(Z|Y)$$
+This means we can split it into the following sub-DAGs.
 
 ```{r, echo = FALSE, fig.width=7, fig.height=4, fig.align='center', message=FALSE, warning= FALSE,out.height='30%', out.width='90%', fig.asp=0.8}
 s1 <- CausalQueries::make_model("X -> M1") |>
