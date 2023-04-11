@@ -47,12 +47,21 @@ deparse_query <- function(query, join_by, nodes){
     unlist()
   w_query <- w_query[w_query != ""]
 
-  #split query into two component sets
+  #split query into component sets
+  any(grepl("\\&", w_query)) {
+
+  } else {
+
+  }
+
+
   set_operation <- which(head(w_query, -1) == "]" & tail(w_query, -1) %in% c("==",">=","<=",">","<","+","-")) + 1
   w_query_1 <- w_query[1:(set_operation-1)]
   w_query_2 <- w_query[(set_operation+1):length(w_query)]
 
 }
+
+
 
 deparse_query <- function(query, join_by, nodes){
 

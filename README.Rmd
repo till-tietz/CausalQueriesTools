@@ -25,7 +25,7 @@ library(kableExtra)
 [![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](<Redirect-URL>)
 <!-- badges: end -->
 
-`CausalQueriesTools` is currently in development, very much experimental. It is intended to be a companion package to `CausalQueries`, implementing optimized core `CausalQueries` methods to make, update and query very large causal models.
+`CausalQueriesTools` is currently under development and very much experimental. It is intended to be a companion package to `CausalQueries`, implementing optimized core `CausalQueries` methods to make, update and query very large causal models.
 
 [CausalQueries CRAN](https://cran.r-project.org/web/packages/CausalQueries/index.html)
 [CausalQueries GitHub](https://github.com/macartan/CausalQueries)

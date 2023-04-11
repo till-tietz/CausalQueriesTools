@@ -9,7 +9,7 @@
 [![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](Redirect-URL)
 <!-- badges: end -->
 
-`CausalQueriesTools` is currently in development, very much
+`CausalQueriesTools` is currently under development and very much
 experimental. It is intended to be a companion package to
 `CausalQueries`, implementing optimized core `CausalQueries` methods to
 make, update and query very large causal models.
