@@ -8,7 +8,6 @@ maintenance / major updates. Please bare with us as we bring `CausalQueriesTools
 up to speed. 
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/till-tietz/CausalQueriesTools/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/till-tietz/CausalQueriesTools/actions/workflows/R-CMD-check.yaml)
 [![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](Redirect-URL)
 <!-- badges: end -->
 
